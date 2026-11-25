@@ -1,0 +1,18 @@
+{
+  "id": "/area-de-trabalho/?app=eguilherme88-area-de-trabalho",
+  "name": "Área de Trabalho – eguilherme88",
+  "short_name": "Área de Trabalho",
+  "description": "Painel central com todos os apps do GitHub, organizados por área.",
+  "lang": "pt-BR",
+  "start_url": "/area-de-trabalho/?origem=app",
+  "scope": "/area-de-trabalho/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#0c1d1b",
+  "theme_color": "#2f8f80",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml"}
+  ]
+}

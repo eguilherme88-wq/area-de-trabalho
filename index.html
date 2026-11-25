@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Minha Área de Trabalho</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2f8f80">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
 <style>
@@ -54,7 +58,17 @@ h1{font-size:clamp(28px,4vw,44px);line-height:1.05;margin:0 0 6px;text-wrap:bala
 .app b{font-size:13px;font-weight:600;line-height:1.25}
 .gh{position:absolute;top:4px;right:6px;width:26px;height:26px;border-radius:8px;display:none;place-items:center;background:var(--bar);border:1px solid var(--line)}
 .gh svg{width:14px;height:14px}
-.app:hover .gh,.app:focus-within .gh{display:grid}
+.rm{position:absolute;top:4px;left:6px;width:26px;height:26px;border-radius:50%;display:none;place-items:center;background:#d1495b;color:#fff;font-weight:800;font-size:16px;line-height:1;border:2px solid var(--bar)}
+.app:hover .gh,.app:focus-within .gh,.app:hover .rm,.app:focus-within .rm,body.edit .rm{display:grid}
+body.edit .app .ic{animation:wig .35s ease-in-out infinite alternate}
+@keyframes wig{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
+.btn.on{background:var(--teal);color:#06231f;border-color:var(--teal)}
+.btn.prime{background:var(--teal);color:#06231f;border-color:var(--teal)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,140%);z-index:20;display:flex;align-items:center;gap:14px;padding:10px 10px 10px 18px;border-radius:14px;background:#0f2724;color:#e7f5f2;box-shadow:0 14px 30px -10px rgba(0,0,0,.5);transition:transform .25s;max-width:calc(100% - 24px)}
+.toast.show{transform:translate(-50%,0)}
+.toast button{height:40px;border-radius:10px;border:0;background:var(--teal);color:#06231f;font-weight:700;padding:0 14px;cursor:pointer}
+.steps{margin:0 0 12px;padding-left:20px}.steps li{margin:6px 0}
+.note{background:var(--zone);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--mute)}
 .empty{color:var(--mute);font-size:14px;padding:20px 8px;grid-column:1/-1;text-align:center}
 .hint{color:var(--mute);font-size:13px;margin-top:22px}
 .reset{background:none;border:0;color:var(--mute);text-decoration:underline;cursor:pointer;padding:0;font-size:13px}
@@ -101,12 +115,15 @@ form.add .full{grid-column:1/-1}
   <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="22" fill="#56c6b5"/><path d="M20 22h26v16H34v16H20zM54 22h26v32H66V38H54zM42 58h16v24H42z" fill="#0c1d1b" opacity=".85"/></svg>eguilherme88</div>
   <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar app…" aria-label="Buscar app" autocomplete="off"></label>
   <button class="btn" id="openFiles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Arquivos</span></button>
+  <button class="btn" id="editBtn" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span>Editar</span></button>
+  <button class="btn" id="hiddenBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span>Removidos</span> <b id="hiddenCount"></b></button>
+  <button class="btn prime" id="installBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg><span>Instalar no PC</span></button>
   <div class="clock" id="clock"></div>
 </header>
 
 <main>
   <h1 id="greet">Boa tarde</h1>
-  <p class="sub">Seus 21 apps do GitHub, organizados por área. Clique para abrir. Arraste um ícone para outra área para reorganizar.</p>
+  <p class="sub">Seus apps do GitHub, organizados por área. Clique para abrir. Arraste um ícone para outra área para reorganizar, ou use <b>Editar</b> para remover apps.</p>
   <div class="zones" id="zones"></div>
   <p class="hint">A organização fica salva neste navegador. <button class="reset" id="reset">Restaurar organização original</button></p>
 </main>
@@ -128,6 +145,30 @@ form.add .full{grid-column:1/-1}
     </div>
   </div>
 </div>
+
+<div class="win" id="winHidden" role="dialog" aria-modal="true" aria-labelledby="ht">
+  <div class="panel">
+    <div class="ph"><h3 id="ht">Apps removidos</h3><button class="x" data-close aria-label="Fechar">×</button></div>
+    <div class="pb"><ul class="files" id="hiddenList"></ul><p class="hint">Os apps removidos só somem desta área de trabalho. O app e o repositório no GitHub continuam intactos.</p></div>
+  </div>
+</div>
+
+<div class="win" id="winInstall" role="dialog" aria-modal="true" aria-labelledby="it">
+  <div class="panel">
+    <div class="ph"><h3 id="it">Instalar no computador</h3><button class="x" data-close aria-label="Fechar">×</button></div>
+    <div class="pb">
+      <p id="installMsg" style="margin-top:0">A Área de Trabalho pode ser instalada como app no Windows e no Linux, com ícone próprio e janela separada.</p>
+      <ol class="steps">
+        <li>Abra este endereço no <b>Google Chrome</b>, <b>Microsoft Edge</b>, <b>Brave</b> ou <b>Chromium</b>: <br><code>https://eguilherme88-wq.github.io/area-de-trabalho/</code></li>
+        <li>Clique no ícone de instalar na barra de endereço (um monitor com seta) ou no menu ⋮ → <b>Transmitir, salvar e compartilhar</b> → <b>Instalar página como app</b>.</li>
+        <li>Confirme em <b>Instalar</b>. O atalho aparece no Menu Iniciar (Windows) ou no menu de aplicativos (Linux).</li>
+      </ol>
+      <p class="note">O Firefox não instala apps web. Use um dos navegadores acima. Para desinstalar, abra o app e use o menu ⋮ → <b>Desinstalar</b>.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="undo">Desfazer</button></div>
 
 <script>
 {
@@ -186,9 +227,13 @@ const APPS=[
 ];
 const byId=Object.fromEntries(APPS.map(a=>[a[0],{id:a[0],name:a[1],area:a[2],icon:a[3]}]));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+// Todos os apps do GitHub Pages (eguilherme88-wq.github.io) dividem o mesmo localStorage.
+// Por isso as chaves usam um prefixo exclusivo, para nunca ler ou apagar dados de outro app.
+const NS='eguilherme88.areaDeTrabalho.v1:';
+const store={get(k,d){try{const v=localStorage.getItem(NS+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+k,JSON.stringify(v))}catch(e){}}};
+try{for(const k of ['layout','files']){const old=localStorage.getItem('desk.'+k);if(old!==null&&localStorage.getItem(NS+k)===null)localStorage.setItem(NS+k,old);localStorage.removeItem('desk.'+k)}}catch(e){}
 const defaultLayout=()=>Object.fromEntries(AREAS.map(a=>[a.id,APPS.filter(x=>x[2]===a.id).map(x=>x[0])]));
-let layout=store.get('desk.layout',null);
+let layout=store.get('layout',null);
 const fixLayout=()=>{
   if(!layout||typeof layout!=='object')layout=defaultLayout();
   const seen=new Set();
@@ -196,22 +241,34 @@ const fixLayout=()=>{
   for(const id in byId)if(!seen.has(id))layout[byId[id].area].push(id);
 };
 fixLayout();
+let hidden=new Set(store.get('hidden',[]).filter(id=>byId[id]));
+const saveHidden=()=>store.set('hidden',[...hidden]);
 const zones=document.getElementById('zones'),q=document.getElementById('q');
 const ghIcon='<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.6 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 0z"/></svg>';
 const render=()=>{
   const term=q.value.trim().toLowerCase();
   zones.innerHTML=AREAS.map(a=>{
-    const ids=layout[a.id].filter(id=>!term||byId[id].name.toLowerCase().includes(term)||id.includes(term));
+    const ids=layout[a.id].filter(id=>!hidden.has(id)).filter(id=>!term||byId[id].name.toLowerCase().includes(term)||id.includes(term));
     const icons=ids.map(id=>{const x=byId[id];return `<a class="app" draggable="true" data-id="${esc(id)}" href="https://${USER}.github.io/${esc(id)}/" target="_blank" rel="noopener" title="${esc(x.name)}">
       <span class="ic"><svg viewBox="0 0 24 24">${P[x.icon]||P.box}</svg></span><b>${esc(x.name)}</b>
+      <span class="rm" data-rm="${esc(id)}" title="Remover da área de trabalho" role="button" tabindex="0" aria-label="Remover ${esc(x.name)} da área de trabalho">−</span>
       <span class="gh" data-gh="${esc(id)}" title="Ver código no GitHub" role="button" aria-label="Ver código de ${esc(x.name)} no GitHub">${ghIcon}</span></a>`}).join('');
     return `<section class="zone" data-area="${a.id}" style="--c:${a.c}"><div class="zh"><i></i><h2>${esc(a.name)}</h2><span>${ids.length} ${ids.length===1?'app':'apps'}</span></div>
       <div class="icons">${icons||`<div class="empty">${term?'Nenhum app encontrado':'Arraste apps para cá'}</div>`}</div></section>`;
   }).join('');
+  const n=hidden.size;document.getElementById('hiddenCount').textContent=n?`(${n})`:'';
 };
 render();
 q.addEventListener('input',render);
-zones.addEventListener('click',e=>{const g=e.target.closest('[data-gh]');if(g){e.preventDefault();e.stopPropagation();const a=document.createElement('a');a.href=`https://github.com/${USER}/${g.dataset.gh}`;a.target='_blank';a.rel='noopener';a.click()}});
+const toast=document.getElementById('toast');let lastRemoved=null,tt;
+const removeApp=id=>{hidden.add(id);saveHidden();lastRemoved=id;render();
+  document.getElementById('toastMsg').textContent=`"${byId[id].name}" foi removido da área de trabalho.`;
+  toast.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('show'),6000)};
+document.getElementById('undo').addEventListener('click',()=>{if(lastRemoved){hidden.delete(lastRemoved);saveHidden();lastRemoved=null;render()}toast.classList.remove('show')});
+zones.addEventListener('keydown',e=>{const r=e.target.closest('[data-rm]');if(r&&(e.key==='Enter'||e.key===' ')){e.preventDefault();removeApp(r.dataset.rm)}});
+zones.addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(r){e.preventDefault();e.stopPropagation();removeApp(r.dataset.rm);return}
+  if(document.body.classList.contains('edit')&&e.target.closest('.app')){e.preventDefault();return}
+  const g=e.target.closest('[data-gh]');if(g){e.preventDefault();e.stopPropagation();const a=document.createElement('a');a.href=`https://github.com/${USER}/${g.dataset.gh}`;a.target='_blank';a.rel='noopener';a.click()}});
 let dragId=null;
 zones.addEventListener('dragstart',e=>{const el=e.target.closest('.app');if(!el)return;dragId=el.dataset.id;el.classList.add('drag');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId)}catch(_){}});
 zones.addEventListener('dragend',()=>{dragId=null;document.querySelectorAll('.drag,.over').forEach(x=>x.classList.remove('drag','over'))});
@@ -220,8 +277,28 @@ zones.addEventListener('drop',e=>{const z=e.target.closest('.zone');if(!z||!drag
   for(const a of AREAS)layout[a.id]=layout[a.id].filter(id=>id!==dragId);
   const target=layout[z.dataset.area];const before=e.target.closest('.app');
   const i=before?target.indexOf(before.dataset.id):-1;i<0?target.push(dragId):target.splice(i,0,dragId);
-  store.set('desk.layout',layout);dragId=null;render()});
-document.getElementById('reset').addEventListener('click',()=>{layout=defaultLayout();store.set('desk.layout',layout);render()});
+  store.set('layout',layout);dragId=null;render()});
+document.getElementById('reset').addEventListener('click',()=>{layout=defaultLayout();store.set('layout',layout);hidden.clear();saveHidden();render()});
+const editBtn=document.getElementById('editBtn');
+editBtn.addEventListener('click',()=>{const on=document.body.classList.toggle('edit');editBtn.classList.toggle('on',on);editBtn.setAttribute('aria-pressed',on);editBtn.querySelector('span').textContent=on?'Concluir':'Editar'});
+// apps removidos
+const winHidden=document.getElementById('winHidden'),hl=document.getElementById('hiddenList');
+const renderHidden=()=>{hl.innerHTML=hidden.size?[...hidden].map(id=>`<li><span style="flex:1;font-weight:600">${esc(byId[id].name)}</span><small>${esc(AREAS.find(a=>layout[a.id].includes(id))?.name||'')}</small><button class="btn" data-restore="${esc(id)}">Restaurar</button></li>`).join(''):'<li style="justify-content:center;color:var(--mute)">Nenhum app removido</li>'};
+hl.addEventListener('click',e=>{const b=e.target.closest('[data-restore]');if(b){hidden.delete(b.dataset.restore);saveHidden();render();renderHidden()}});
+document.getElementById('hiddenBtn').addEventListener('click',()=>{renderHidden();winHidden.classList.add('open')});
+// instalação (PWA) para Windows e Linux
+const installBtn=document.getElementById('installBtn'),winInstall=document.getElementById('winInstall');
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: window-controls-overlay)').matches;
+let deferred=null;
+if(!standalone())installBtn.hidden=false;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;installBtn.hidden=false});
+window.addEventListener('appinstalled',()=>{deferred=null;installBtn.hidden=true});
+installBtn.addEventListener('click',async()=>{
+  if(deferred){deferred.prompt();try{const r=await deferred.userChoice;if(r.outcome==='accepted')installBtn.hidden=true}catch(e){}deferred=null;return}
+  winInstall.classList.add('open')});
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.win').classList.remove('open')));
+[winHidden,winInstall].forEach(w=>w.addEventListener('click',e=>{if(e.target===w)w.classList.remove('open')}));
+if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{})}
 // clock + greeting
 const clock=document.getElementById('clock'),greet=document.getElementById('greet');
 const tick=()=>{const d=new Date(),h=d.getHours();
@@ -229,7 +306,7 @@ const tick=()=>{const d=new Date(),h=d.getHours();
   greet.textContent=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'};
 tick();setInterval(tick,15000);
 // files folder
-let files=store.get('desk.files',[
+let files=store.get('files',[
  {name:'Exemplo: Planilha de controle',folder:'Geral',url:'https://drive.google.com/'}
 ]);
 let cur='Todas';
@@ -243,16 +320,16 @@ const renderFiles=()=>{
   fl.innerHTML=list.length?list.map(f=>`<li><a href="${esc(/^https?:\/\//.test(f.url)?f.url:'#')}" target="_blank" rel="noopener">${esc(f.name)}</a><small>${esc(f.folder||'Geral')}</small><button class="del" data-del="${f.i}" aria-label="Remover ${esc(f.name)}">✕</button></li>`).join(''):'<li style="justify-content:center;color:var(--mute)">Pasta vazia</li>';
 };
 fd.addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(b){cur=b.dataset.f;renderFiles()}});
-fl.addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(b){files.splice(+b.dataset.del,1);store.set('desk.files',files);renderFiles()}});
+fl.addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(b){files.splice(+b.dataset.del,1);store.set('files',files);renderFiles()}});
 document.getElementById('addForm').addEventListener('submit',e=>{e.preventDefault();
   const name=document.getElementById('fName').value.trim(),url=document.getElementById('fUrl').value.trim(),folder=document.getElementById('fFolder').value.trim()||'Geral';
-  if(!name||!url)return;files.push({name,url,folder});store.set('desk.files',files);cur=folder;e.target.reset();renderFiles()});
+  if(!name||!url)return;files.push({name,url,folder});store.set('files',files);cur=folder;e.target.reset();renderFiles()});
 const openW=()=>{renderFiles();win.classList.add('open');document.getElementById('close').focus()};
 const closeW=()=>{win.classList.remove('open');document.getElementById('openFiles').focus()};
 document.getElementById('openFiles').addEventListener('click',openW);
 document.getElementById('close').addEventListener('click',closeW);
 win.addEventListener('click',e=>{if(e.target===win)closeW()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&win.classList.contains('open'))closeW();if(e.key==='/'&&document.activeElement!==q&&!win.classList.contains('open')){e.preventDefault();q.focus()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(win.classList.contains('open'))closeW();document.querySelectorAll('.win.open').forEach(w=>w.classList.remove('open'))}if(e.key==='/'&&document.activeElement!==q&&!win.classList.contains('open')){e.preventDefault();q.focus()}});
 }
 </script>
 </body>
