@@ -1,6 +1,6 @@
 // Service worker exclusivo da Área de Trabalho.
 // Escopo limitado a /area-de-trabalho/: não intercepta nenhum outro app do mesmo domínio.
-const CACHE = 'eguilherme88-area-de-trabalho-v2';
+const CACHE = 'eguilherme88-area-de-trabalho-v3';
 const SCOPE = new URL('./', self.location).pathname; // "/area-de-trabalho/"
 const FILES = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon.svg'];
 

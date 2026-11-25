@@ -79,6 +79,21 @@ textarea.mfield{height:110px;padding:10px 12px;resize:vertical}
 .mlinks svg{width:18px;height:18px;flex:none}
 .mb h4{margin:4px 0 -6px;font-size:14px;color:var(--mute);font-weight:600}
 .mb form{display:grid;gap:8px}
+.badge{min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#d93025;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.inbox{display:grid;gap:2px;margin:0;padding:0;list-style:none}
+.inbox a{display:grid;grid-template-columns:1fr auto;gap:0 8px;padding:9px 10px;border-radius:10px;color:inherit;text-decoration:none;border:1px solid transparent}
+.inbox a:hover{background:var(--zone);border-color:var(--line)}
+.inbox .fr{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inbox .dt{font-size:12px;color:var(--mute);white-space:nowrap}
+.inbox .su{grid-column:1/-1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inbox .sn{grid-column:1/-1;font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inbox .un .fr,.inbox .un .su{font-weight:800}
+.inbox .un{border-left:3px solid #d93025}
+.ihead{display:flex;align-items:center;gap:8px}
+.ihead h4{margin:0;flex:1}
+.mini{border:0;background:none;color:var(--mute);cursor:pointer;font-size:13px;text-decoration:underline;padding:6px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;height:46px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#1f1f1f;font-weight:700;cursor:pointer;width:100%}
+.gbtn:hover{box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .usd{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--zone);white-space:nowrap;line-height:1.15}
 .usd b{font-variant-numeric:tabular-nums;font-size:16px}
 .usd small{display:block;font-size:12px;color:var(--mute)}
@@ -148,6 +163,7 @@ form.add .full{grid-column:1/-1}
 @media(max-width:600px){form.add{grid-template-columns:1fr}.btn span{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div class="wall" aria-hidden="true">
@@ -236,12 +252,20 @@ form.add .full{grid-column:1/-1}
   </div>
 </div>
 
-<button class="mtab" id="mailTab" aria-expanded="false" aria-controls="mailPanel" title="Mostrar/ocultar Gmail"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#d93025"/><path d="m3.5 6 8.5 7 8.5-7" stroke="#d93025"/></svg><span>Gmail</span></button>
+<button class="mtab" id="mailTab" aria-expanded="false" aria-controls="mailPanel" title="Mostrar/ocultar Gmail"><b class="badge" id="mailBadge" hidden></b><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#d93025"/><path d="m3.5 6 8.5 7 8.5-7" stroke="#d93025"/></svg><span>Gmail</span></button>
 <aside class="mail" id="mailPanel" aria-label="Gmail">
   <div class="mh"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#d93025"/><path d="m3.5 6 8.5 7 8.5-7" stroke="#d93025"/></svg><h3>Gmail</h3><button class="x" id="mailClose" aria-label="Recolher painel do Gmail" title="Recolher">›</button></div>
   <div class="mb">
     <form id="acctForm"><label for="acctMail" style="font-weight:600;font-size:14px">Seu e-mail do Gmail</label><input class="mfield" id="acctMail" type="email" placeholder="seunome@gmail.com" autocomplete="email" required><button class="btn" type="submit" style="justify-content:center">Salvar</button></form>
     <div class="acct" id="acctBox" hidden><span class="av" id="acctAv"></span><div id="acctTxt"></div><button id="acctEdit">trocar</button></div>
+    <section id="inboxBox">
+      <button class="gbtn" id="gLogin" type="button"><svg viewBox="0 0 48 48" width="20" height="20"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.6 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.7z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.1 1.4-4.9 2.3-8.2 2.3-6.2 0-11.5-4.2-13.4-9.9l-8 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Entrar com Google para ver os e-mails</button>
+      <div id="inboxWrap" hidden>
+        <div class="ihead"><h4 id="inboxTitle">Caixa de entrada</h4><button class="mini" id="inboxRefresh" type="button">atualizar</button><button class="mini" id="gLogout" type="button">sair</button></div>
+        <ul class="inbox" id="inboxList"></ul>
+      </div>
+      <p class="hint" id="inboxMsg" style="margin:6px 0 0"></p>
+    </section>
     <a class="mgo" id="mInbox" href="https://mail.google.com/mail/" target="_blank" rel="noopener">Abrir caixa de entrada</a>
     <div class="mlinks" id="mLinks"></div>
     <h4>Buscar e-mails</h4>
@@ -489,6 +513,49 @@ document.getElementById('mCompose').addEventListener('submit',e=>{e.preventDefau
   if(to)p.set('to',to);if(su)p.set('su',su);if(body)p.set('body',body);
   openUrl('https://mail.google.com/mail/?'+p.toString());
   e.target.reset();for(const k in draft)delete draft[k];store.set('mailDraft',draft)});
+
+// ---- Leitura dos e-mails (Gmail API, somente leitura) ----
+const GCLIENT='1028562938007-6jfrkjb5t5alki94ledtvh6nt985nvo3.apps.googleusercontent.com';
+const GSCOPE='https://www.googleapis.com/auth/gmail.readonly';
+let gTok=store.get('gtoken',null);if(gTok&&gTok.exp<Date.now()+60000)gTok=null;
+let tokenClient=null,inboxTimer=null;
+const inboxList=document.getElementById('inboxList'),inboxMsg=document.getElementById('inboxMsg'),mailBadge=document.getElementById('mailBadge');
+const decode=s=>{const t=document.createElement('textarea');t.innerHTML=s||'';return t.value};
+const fmtDate=ms=>{const d=new Date(ms),n=new Date();return d.toDateString()===n.toDateString()?d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})};
+const showInboxUi=on=>{document.getElementById('gLogin').hidden=on;document.getElementById('inboxWrap').hidden=!on};
+const gapi=async path=>{const r=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/'+path,{headers:{Authorization:'Bearer '+gTok.token}});if(r.status===401){gTok=null;store.set('gtoken',null);throw new Error('auth')}if(!r.ok)throw new Error('http '+r.status);return r.json()};
+const loadInbox=async()=>{
+  if(!gTok){showInboxUi(false);mailBadge.hidden=true;return}
+  showInboxUi(true);inboxMsg.textContent='Carregando…';
+  try{
+    const [lab,list,prof]=await Promise.all([gapi('labels/INBOX'),gapi('messages?labelIds=INBOX&maxResults=15'),acct?null:gapi('profile')]);
+    if(prof&&prof.emailAddress){acct=prof.emailAddress;store.set('gmail',acct);renderMail()}
+    const n=lab.messagesUnread||0;mailBadge.textContent=n>99?'99+':n;mailBadge.hidden=!n;
+    document.getElementById('inboxTitle').textContent=n?`Caixa de entrada · ${n} não lido${n>1?'s':''}`:'Caixa de entrada';
+    const msgs=await Promise.all((list.messages||[]).map(m=>gapi(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject`)));
+    inboxList.innerHTML=msgs.length?msgs.map(m=>{const h=Object.fromEntries((m.payload?.headers||[]).map(x=>[x.name.toLowerCase(),x.value]));
+      const from=(h.from||'').replace(/\s*<[^>]+>\s*$/,'').replace(/^"|"$/g,'')||h.from||'(sem remetente)';
+      const un=(m.labelIds||[]).includes('UNREAD');
+      return `<li><a class="${un?'un':''}" href="${gbase()}#inbox/${esc(m.threadId)}" target="_blank" rel="noopener"><span class="fr">${esc(from)}</span><span class="dt">${esc(fmtDate(+m.internalDate))}</span><span class="su">${esc(h.subject||'(sem assunto)')}</span><span class="sn">${esc(decode(m.snippet))}</span></a></li>`}).join(''):'<li class="hint" style="text-align:center">Caixa de entrada vazia</li>';
+    inboxMsg.textContent=`Atualizado às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}. Clique num e-mail para abrir no Gmail.`;
+  }catch(e){
+    if(!gTok){showInboxUi(false);mailBadge.hidden=true;inboxMsg.textContent='A conexão com o Gmail expirou. Clique em “Entrar com Google” para continuar.'}
+    else inboxMsg.textContent='Não foi possível carregar os e-mails agora. Tente “atualizar”.'}
+};
+const initGis=()=>{if(tokenClient||!window.google?.accounts?.oauth2)return !!tokenClient;
+  tokenClient=google.accounts.oauth2.initTokenClient({client_id:GCLIENT,scope:GSCOPE,callback:r=>{
+    if(r&&r.access_token){gTok={token:r.access_token,exp:Date.now()+(+r.expires_in||3600)*1000};store.set('gtoken',gTok);loadInbox()}
+    else inboxMsg.textContent='Login cancelado.'},error_callback:()=>{inboxMsg.textContent='A janela de login foi fechada ou bloqueada. Tente de novo.'}});return true};
+document.getElementById('gLogin').addEventListener('click',()=>{
+  if(!initGis()){inboxMsg.textContent='Carregando o login do Google… tente de novo em alguns segundos.';return}
+  tokenClient.requestAccessToken({prompt:store.get('gconsent',false)?'':'consent',login_hint:acct||undefined});store.set('gconsent',true)});
+document.getElementById('gLogout').addEventListener('click',()=>{
+  if(gTok&&window.google?.accounts?.oauth2)try{google.accounts.oauth2.revoke(gTok.token,()=>{})}catch(e){}
+  gTok=null;store.set('gtoken',null);store.set('gconsent',false);inboxList.innerHTML='';mailBadge.hidden=true;showInboxUi(false);inboxMsg.textContent='Você saiu. Os e-mails não são mais lidos por esta página.'});
+document.getElementById('inboxRefresh').addEventListener('click',loadInbox);
+loadInbox();
+inboxTimer=setInterval(()=>{if(gTok&&gTok.exp<Date.now()+60000){gTok=null;store.set('gtoken',null)}loadInbox()},2*60*1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&gTok)loadInbox()});
 
 // Busca a lista atualizada no GitHub (no máximo a cada 5 min, para respeitar o limite da API).
 const syncRepos=async(force)=>{
