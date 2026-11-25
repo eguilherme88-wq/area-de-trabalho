@@ -133,7 +133,7 @@ form.add .full{grid-column:1/-1}
 
 <main>
   <h1 id="greet">Boa tarde</h1>
-  <p class="sub">Seus apps do GitHub, organizados por área. Clique para abrir. Arraste um ícone para outra área para reorganizar, ou use <b>Editar</b> para remover apps.</p>
+  <p class="sub">Seus apps do GitHub, organizados por área. Novos apps do GitHub aparecem sozinhos. Clique para abrir. Arraste um ícone para outra área para reorganizar, ou use <b>Editar</b> para remover apps.</p>
   <div class="zones" id="zones"></div>
   <p class="hint">A organização fica salva neste navegador. <button class="reset" id="reset">Restaurar organização original</button></p>
 </main>
@@ -189,9 +189,11 @@ const AREAS=[
  {id:'sst',name:'Segurança do Trabalho',c:'#e0663a'},
  {id:'gestao',name:'Gestão e Negócios',c:'#3b7fd4'},
  {id:'edu',name:'Educação e Treinamento',c:'#7a5cc7'},
- {id:'pessoal',name:'Pessoal e Família',c:'#2aa58f'}
+ {id:'pessoal',name:'Pessoal e Família',c:'#2aa58f'},
+ {id:'novos',name:'Novos',c:'#d99a1e'}
 ];
 const P={
+ app:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M16.5 13v7M13 16.5h7"/>',
  shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
  map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
  lungs:'<path d="M12 4v8M12 12c-2 0-3-1-4-3-2 1-4 5-4 9 0 2 2 2 4 1s4-3 4-7zM12 12c2 0 3-1 4-3 2 1 4 5 4 9 0 2-2 2-4 1s-4-3-4-7z"/>',
@@ -237,14 +239,26 @@ const APPS=[
  ['nutriviva','NutriViva','pessoal','apple'],
  ['planejadordeviagem','Planejador de Viagem','pessoal','plane']
 ];
-const byId=Object.fromEntries(APPS.map(a=>[a[0],{id:a[0],name:a[1],area:a[2],icon:a[3]}]));
+const KNOWN=Object.fromEntries(APPS.map(a=>[a[0],{id:a[0],name:a[1],area:a[2],icon:a[3]}]));
+let byId={...KNOWN};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Todos os apps do GitHub Pages (eguilherme88-wq.github.io) dividem o mesmo localStorage.
 // Por isso as chaves usam um prefixo exclusivo, para nunca ler ou apagar dados de outro app.
 const NS='eguilherme88.areaDeTrabalho.v1:';
 const store={get(k,d){try{const v=localStorage.getItem(NS+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+k,JSON.stringify(v))}catch(e){}}};
 try{for(const k of ['layout','files']){const old=localStorage.getItem('desk.'+k);if(old!==null&&localStorage.getItem(NS+k)===null)localStorage.setItem(NS+k,old);localStorage.removeItem('desk.'+k)}}catch(e){}
-const defaultLayout=()=>Object.fromEntries(AREAS.map(a=>[a.id,APPS.filter(x=>x[2]===a.id).map(x=>x[0])]));
+// ---- Lista automática: lê os repositórios públicos com GitHub Pages ----
+const IGNORE=new Set(['area-de-trabalho',USER+'.github.io']);
+const ICON_RULES=[[/contrat/,'contract'],[/despes|financ|custo|pagament|caixa|orcament/,'wallet'],[/venc|agenda|calend|prazo/,'calendar'],[/preco|precif|venda|loja/,'tag'],[/frete|transp|logist|entrega/,'truck'],[/pesquisa|satisf|feedback/,'smile'],[/diagram|fluxo|organogram/,'diagram'],[/risco|mapa/,'map'],[/residu|recicl|lixo/,'recycle'],[/acesso|terceir|visita|cracha/,'badge'],[/treina|curso|aula|video/,'play'],[/apostila|livro|book|manual/,'book'],[/escola|educa|aluno/,'school'],[/ambient|verde|planta/,'leaf'],[/nutri|dieta|aliment|receita/,'apple'],[/viag|turism/,'plane'],[/invent|estoque|almox/,'box'],[/curric|cv/,'cv'],[/analis|relat|dashboard|indicad/,'chart'],[/sst|segur|epi|nr|cipa|incend/,'shield'],[/ppr|pca|respir|ruido/,'lungs']];
+const pretty=n=>n.replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim().replace(/(^|\s)\S/g,c=>c.toUpperCase());
+const guessIcon=n=>{n=n.toLowerCase();for(const [re,ic] of ICON_RULES)if(re.test(n))return ic;return 'app'};
+const applyRepos=names=>{
+  if(!Array.isArray(names)||!names.length){byId={...KNOWN};return}
+  const next={};for(const n of names){if(typeof n!=='string'||IGNORE.has(n))continue;next[n]=KNOWN[n]||{id:n,name:pretty(n),area:'novos',icon:guessIcon(n)}}
+  byId=next};
+const cachedRepos=store.get('repos',null);
+if(cachedRepos)applyRepos(cachedRepos.list);
+const defaultLayout=()=>Object.fromEntries(AREAS.map(a=>[a.id,Object.values(byId).filter(x=>x.area===a.id).map(x=>x.id)]));
 let layout=store.get('layout',null);
 const fixLayout=()=>{
   if(!layout||typeof layout!=='object')layout=defaultLayout();
@@ -253,16 +267,17 @@ const fixLayout=()=>{
   for(const id in byId)if(!seen.has(id))layout[byId[id].area].push(id);
 };
 fixLayout();
-let purged=new Set(store.get('purged',[]).filter(id=>byId[id]));
+let purged=new Set(store.get('purged',[]));
 const savePurged=()=>store.set('purged',[...purged]);
-let hidden=new Set(store.get('hidden',[]).filter(id=>byId[id]&&!purged.has(id)));
+let hidden=new Set(store.get('hidden',[]).filter(id=>!purged.has(id)));
 const saveHidden=()=>store.set('hidden',[...hidden]);
 const zones=document.getElementById('zones'),q=document.getElementById('q');
 const ghIcon='<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.6 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 0z"/></svg>';
 const render=()=>{
   const term=q.value.trim().toLowerCase();
   zones.innerHTML=AREAS.map(a=>{
-    const ids=layout[a.id].filter(id=>!hidden.has(id)&&!purged.has(id)).filter(id=>!term||byId[id].name.toLowerCase().includes(term)||id.includes(term));
+    if(a.id==='novos'&&!layout.novos.some(id=>byId[id]&&!hidden.has(id)&&!purged.has(id)))return '';
+    const ids=layout[a.id].filter(id=>byId[id]&&!hidden.has(id)&&!purged.has(id)).filter(id=>!term||byId[id].name.toLowerCase().includes(term)||id.includes(term));
     const icons=ids.map(id=>{const x=byId[id];return `<a class="app" draggable="true" data-id="${esc(id)}" href="https://${USER}.github.io/${esc(id)}/" target="_blank" rel="noopener" title="${esc(x.name)}">
       <span class="ic"><svg viewBox="0 0 24 24">${P[x.icon]||P.box}</svg></span><b>${esc(x.name)}</b>
       <span class="rm" data-rm="${esc(id)}" title="Remover da área de trabalho" role="button" tabindex="0" aria-label="Remover ${esc(x.name)} da área de trabalho">−</span>
@@ -270,14 +285,14 @@ const render=()=>{
     return `<section class="zone" data-area="${a.id}" style="--c:${a.c}"><div class="zh"><i></i><h2>${esc(a.name)}</h2><span>${ids.length} ${ids.length===1?'app':'apps'}</span></div>
       <div class="icons">${icons||`<div class="empty">${term?'Nenhum app encontrado':'Arraste apps para cá'}</div>`}</div></section>`;
   }).join('');
-  const n=hidden.size;document.getElementById('hiddenCount').textContent=n?`(${n})`:'';document.getElementById('hiddenBtn').hidden=!n&&!document.body.classList.contains('edit');
+  const n=[...hidden].filter(id=>byId[id]).length;document.getElementById('hiddenCount').textContent=n?`(${n})`:'';document.getElementById('hiddenBtn').hidden=!n&&!document.body.classList.contains('edit');
 };
 render();
 q.addEventListener('input',render);
 const toast=document.getElementById('toast');let lastRemoved=null,tt;
+const showToast=(msg,undo)=>{document.getElementById('toastMsg').textContent=msg;document.getElementById('undo').hidden=!undo;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('show'),6000)};
 const removeApp=id=>{hidden.add(id);saveHidden();lastRemoved=id;render();
-  document.getElementById('toastMsg').textContent=`"${byId[id].name}" foi removido da área de trabalho.`;
-  toast.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('show'),6000)};
+  showToast(`"${byId[id].name}" foi removido da área de trabalho.`,true)};
 document.getElementById('undo').addEventListener('click',()=>{if(lastRemoved){hidden.delete(lastRemoved);saveHidden();lastRemoved=null;render()}toast.classList.remove('show')});
 zones.addEventListener('keydown',e=>{const r=e.target.closest('[data-rm]');if(r&&(e.key==='Enter'||e.key===' ')){e.preventDefault();removeApp(r.dataset.rm)}});
 zones.addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(r){e.preventDefault();e.stopPropagation();removeApp(r.dataset.rm);return}
@@ -297,7 +312,7 @@ const editBtn=document.getElementById('editBtn');
 editBtn.addEventListener('click',()=>{const on=document.body.classList.toggle('edit');editBtn.classList.toggle('on',on);editBtn.setAttribute('aria-pressed',on);editBtn.querySelector('span').textContent=on?'Concluir':'Editar';render()});
 // apps removidos
 const winHidden=document.getElementById('winHidden'),hl=document.getElementById('hiddenList');
-const renderHidden=()=>{document.getElementById('emptyRow').hidden=!hidden.size;hl.innerHTML=hidden.size?[...hidden].map(id=>`<li><span style="flex:1;font-weight:600">${esc(byId[id].name)}</span><small>${esc(AREAS.find(a=>layout[a.id].includes(id))?.name||'')}</small><button class="btn" data-restore="${esc(id)}">Restaurar</button><button class="del" data-purge="${esc(id)}" title="Excluir de vez" aria-label="Excluir ${esc(byId[id].name)} de vez">✕</button></li>`).join(''):'<li style="justify-content:center;color:var(--mute)">Nenhum app removido</li>'};
+const renderHidden=()=>{document.getElementById('emptyRow').hidden=!hidden.size;hl.innerHTML=[...hidden].some(id=>byId[id])?[...hidden].filter(id=>byId[id]).map(id=>`<li><span style="flex:1;font-weight:600">${esc(byId[id].name)}</span><small>${esc(AREAS.find(a=>layout[a.id].includes(id))?.name||'')}</small><button class="btn" data-restore="${esc(id)}">Restaurar</button><button class="del" data-purge="${esc(id)}" title="Excluir de vez" aria-label="Excluir ${esc(byId[id].name)} de vez">✕</button></li>`).join(''):'<li style="justify-content:center;color:var(--mute)">Nenhum app removido</li>'};
 const purge=ids=>{for(const id of ids){hidden.delete(id);purged.add(id)}saveHidden();savePurged();render();renderHidden()};
 hl.addEventListener('click',e=>{const b=e.target.closest('[data-restore]');if(b){hidden.delete(b.dataset.restore);saveHidden();render();renderHidden()}
   const d=e.target.closest('[data-purge]');if(d)purge([d.dataset.purge])});
@@ -322,6 +337,25 @@ installBtn.addEventListener('click',async()=>{
   winInstall.classList.add('open')});
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.win').classList.remove('open')));
 [winHidden,winInstall].forEach(w=>w.addEventListener('click',e=>{if(e.target===w)w.classList.remove('open')}));
+// Busca a lista atualizada no GitHub (no máximo a cada 5 min, para respeitar o limite da API).
+const syncRepos=async(force)=>{
+  const c=store.get('repos',null);
+  if(!force&&c&&Date.now()-c.t<5*60*1000)return;
+  try{
+    const r=await fetch(`https://api.github.com/users/${USER}/repos?per_page=100&sort=created`,{headers:{Accept:'application/vnd.github+json'},cache:'no-store'});
+    if(!r.ok)return;
+    const data=await r.json();if(!Array.isArray(data))return;
+    const list=data.filter(x=>x&&x.has_pages&&!x.fork&&!x.archived&&!IGNORE.has(x.name)).map(x=>String(x.name));
+    if(!list.length)return;
+    const before=new Set(Object.keys(byId));
+    store.set('repos',{t:Date.now(),list});
+    applyRepos(list);fixLayout();store.set('layout',layout);render();
+    const added=list.filter(n=>!before.has(n));
+    if(added.length&&c)showToast(added.length===1?`Novo app: "${byId[added[0]].name}". Arraste para a área certa.`:`${added.length} apps novos na área "Novos".`,false);
+  }catch(e){}
+};
+syncRepos();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncRepos()});
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{})}
 // clock + greeting
 const clock=document.getElementById('clock'),greet=document.getElementById('greet');
