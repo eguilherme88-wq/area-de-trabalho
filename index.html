@@ -19,7 +19,7 @@
 :root{color-scheme:light dark;
 --bg:light-dark(#dff1ec,#0c1d1b);--ink:light-dark(#0f2724,#e7f5f2);--mute:light-dark(#4b6662,#9bbab4);
 --zone:light-dark(rgba(255,255,255,.62),rgba(16,40,37,.62));--line:light-dark(rgba(15,39,36,.12),rgba(231,245,242,.12));
---bar:light-dark(rgba(255,255,255,.8),rgba(10,26,24,.82));--teal:#56c6b5;--accent:#f2b544}
+--bar:light-dark(rgba(255,255,255,.8),rgba(10,26,24,.82));--teal:#56c6b5;--accent:#f2b544;--w1:#56c6b5;--w2:#2f8f80;--w3:#14544b;--sun:#f2b544}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Manrope,system-ui,sans-serif;overflow-x:clip;min-height:100vh}
@@ -95,6 +95,47 @@ textarea.mfield{height:110px;padding:10px 12px;resize:vertical}
 .mini{border:0;background:none;color:var(--mute);cursor:pointer;font-size:13px;text-decoration:underline;padding:6px}
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;height:46px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#1f1f1f;font-weight:700;cursor:pointer;width:100%}
 .gbtn:hover{box-shadow:0 2px 8px rgba(0,0,0,.15)}
+/* logo */
+.logo img{height:34px;max-width:160px;object-fit:contain;display:block;border-radius:6px}
+#logoMark{display:flex}
+/* tamanhos de ícone */
+body.v-small .icons{grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:2px}
+body.v-small .app{padding:7px 2px;gap:5px}
+body.v-small .ic{width:42px;height:42px;border-radius:12px}
+body.v-small .ic svg{width:22px;height:22px}
+body.v-small .app b{font-size:12px}
+body.v-list .icons{grid-template-columns:1fr;gap:2px;min-height:44px}
+body.v-list .app{flex-direction:row;text-align:left;padding:6px 10px;gap:12px}
+body.v-list .ic{width:34px;height:34px;border-radius:10px;flex:none}
+body.v-list .ic svg{width:19px;height:19px}
+body.v-list .app b{font-size:14px;flex:1}
+body.v-list .gh{top:50%;right:8px;transform:translateY(-50%)}
+body.v-list .rm{top:50%;left:auto;right:40px;transform:translateY(-50%)}
+/* configurações */
+.panel.cfg{width:min(720px,100%)}
+.cfg section{padding:4px 0 18px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.cfg section:last-child{border:0;margin:0}
+.cfg h4{margin:0 0 10px;font-size:16px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--zone);cursor:pointer;font-weight:600}
+.seg button.on{background:var(--teal);color:#06231f;border-color:var(--teal)}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.themes button{border:2px solid var(--line);border-radius:14px;padding:0;overflow:hidden;cursor:pointer;background:none;text-align:left}
+.themes button.on{border-color:var(--ink)}
+.themes i{display:block;height:54px}
+.themes span{display:block;padding:6px 10px;font-size:13px;font-weight:600}
+.logorow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logoprev{width:120px;height:56px;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;background:var(--zone);overflow:hidden}
+.logoprev img{max-width:110px;max-height:48px;object-fit:contain}
+.arealist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px}
+.arealist li{display:flex;align-items:center;gap:6px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--zone)}
+.arealist input[type=text]{flex:1;height:40px;border:1px solid transparent;border-radius:8px;background:none;padding:0 8px;font-size:16px;font-weight:600}
+.arealist input[type=text]:focus{border-color:var(--line);background:var(--bg)}
+.arealist input[type=color]{width:40px;height:40px;border:0;border-radius:8px;padding:0;background:none;cursor:pointer}
+.ibtn{width:40px;height:40px;border-radius:8px;border:0;background:none;cursor:pointer;color:var(--mute);font-size:16px}
+.ibtn:hover{background:var(--bg);color:var(--ink)}
+.ibtn:disabled{opacity:.3;cursor:default}
+.ibtn.danger:hover{color:#d1495b}
 .usd{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--zone);white-space:nowrap;line-height:1.15}
 .usd b{font-variant-numeric:tabular-nums;font-size:16px}
 .usd small{display:block;font-size:12px;color:var(--mute)}
@@ -170,21 +211,22 @@ form.add .full{grid-column:1/-1}
 <div class="wall" aria-hidden="true">
 <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
 <defs>
-<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--bg)"/><stop offset="1" stop-color="#56c6b5" stop-opacity=".35"/></linearGradient>
-<linearGradient id="h1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#56c6b5" stop-opacity=".55"/><stop offset="1" stop-color="#2f8f80" stop-opacity=".55"/></linearGradient>
-<linearGradient id="h2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8f80" stop-opacity=".7"/><stop offset="1" stop-color="#14544b" stop-opacity=".8"/></linearGradient>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--bg)"/><stop offset="1" style="stop-color:var(--w1)" stop-opacity=".35"/></linearGradient>
+<linearGradient id="h1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--w1)" stop-opacity=".55"/><stop offset="1" style="stop-color:var(--w2)" stop-opacity=".55"/></linearGradient>
+<linearGradient id="h2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--w2)" stop-opacity=".7"/><stop offset="1" style="stop-color:var(--w3)" stop-opacity=".8"/></linearGradient>
 </defs>
 <rect width="1600" height="1000" fill="url(#sky)"/>
-<circle cx="1260" cy="250" r="90" fill="#f2b544" opacity=".35"/>
+<circle cx="1260" cy="250" r="90" style="fill:var(--sun)" opacity=".35"/>
 <path d="M0 640 C250 560 420 600 640 540 S1080 480 1300 560 1500 600 1600 570 V1000 H0Z" fill="url(#h1)"/>
 <path d="M0 780 C220 720 480 760 720 700 S1160 680 1380 740 1560 760 1600 750 V1000 H0Z" fill="url(#h2)"/>
 </svg>
 </div>
 
 <header class="bar">
-  <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="22" fill="#56c6b5"/><path d="M20 22h26v16H34v16H20zM54 22h26v32H66V38H54zM42 58h16v24H42z" fill="#0c1d1b" opacity=".85"/></svg>eguilherme88</div>
+  <div class="logo"><span id="logoMark"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="22" style="fill:var(--teal)"/><path d="M20 22h26v16H34v16H20zM54 22h26v32H66V38H54zM42 58h16v24H42z" fill="#0c1d1b" opacity=".85"/></svg></span><span id="brandName">eguilherme88</span></div>
   <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar app…" aria-label="Buscar app" autocomplete="off"></label>
   <button class="btn" id="openFiles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Arquivos</span></button>
+  <button class="btn" id="gearBtn" title="Configurações" aria-label="Configurações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <button class="btn" id="editBtn" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span>Editar</span></button>
   <button class="btn" id="hiddenBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span>Removidos</span> <b id="hiddenCount"></b></button>
   <button class="btn prime" id="installBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg><span>Instalar no PC</span></button>
@@ -282,6 +324,41 @@ form.add .full{grid-column:1/-1}
   </div>
 </aside>
 
+<div class="win" id="winCfg" role="dialog" aria-modal="true" aria-labelledby="cfgt">
+  <div class="panel cfg">
+    <div class="ph"><h3 id="cfgt">Configurações</h3><button class="x" data-close aria-label="Fechar">×</button></div>
+    <div class="pb">
+      <section>
+        <h4>Logomarca</h4>
+        <div class="logorow">
+          <div class="logoprev" id="logoPrev"></div>
+          <label class="btn" style="cursor:pointer">Enviar imagem<input id="logoFile" type="file" accept="image/*" hidden></label>
+          <button class="btn" id="logoDel" type="button">Remover</button>
+        </div>
+        <label style="display:block;margin-top:12px;font-weight:600;font-size:14px" for="brandInput">Nome ao lado da logo</label>
+        <input class="mfield" id="brandInput" type="text" maxlength="40" style="margin-top:6px;max-width:360px" placeholder="Deixe em branco para mostrar só a logo">
+        <p class="hint" style="margin:8px 0 0">PNG, JPG ou SVG. A imagem é reduzida e guardada neste navegador.</p>
+      </section>
+      <section>
+        <h4>Tema</h4>
+        <div class="themes" id="themeList"></div>
+        <h4 style="margin-top:16px">Modo</h4>
+        <div class="seg" id="modeSeg"><button data-mode="">Automático</button><button data-mode="light">Claro</button><button data-mode="dark">Escuro</button></div>
+      </section>
+      <section>
+        <h4>Ícones</h4>
+        <div class="seg" id="viewSeg"><button data-view="">Médio</button><button data-view="small">Pequeno</button><button data-view="list">Lista</button></div>
+      </section>
+      <section>
+        <h4>Áreas</h4>
+        <ul class="arealist" id="areaList"></ul>
+        <form id="areaAdd" style="display:flex;gap:8px;flex-wrap:wrap"><input class="mfield" id="areaName" type="text" maxlength="40" placeholder="Nome da nova área" style="flex:1;min-width:180px" required><button class="btn prime" type="submit">Criar área</button></form>
+        <p class="hint" style="margin:8px 0 0">Ao excluir uma área, os apps dela vão para "Novos". Depois é só arrastá-los para outra área.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="undo">Desfazer</button></div>
 
 <script>
@@ -348,6 +425,11 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 // Por isso as chaves usam um prefixo exclusivo, para nunca ler ou apagar dados de outro app.
 const NS='eguilherme88.areaDeTrabalho.v1:';
 const store={get(k,d){try{const v=localStorage.getItem(NS+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(NS+k,JSON.stringify(v))}catch(e){}}};
+// áreas personalizadas
+{const sa=store.get('areas',null);
+ if(Array.isArray(sa)&&sa.length){const ok=sa.filter(a=>a&&typeof a.id==='string'&&typeof a.name==='string').map(a=>({id:a.id,name:a.name.slice(0,40),c:/^#[0-9a-f]{6}$/i.test(a.c)?a.c:'#56c6b5'}));
+  if(!ok.some(a=>a.id==='novos'))ok.push({id:'novos',name:'Novos',c:'#d99a1e'});AREAS.splice(0,AREAS.length,...ok)}}
+const saveAreas=()=>store.set('areas',AREAS);
 try{for(const k of ['layout','files']){const old=localStorage.getItem('desk.'+k);if(old!==null&&localStorage.getItem(NS+k)===null)localStorage.setItem(NS+k,old);localStorage.removeItem('desk.'+k)}}catch(e){}
 // ---- Lista automática: lê os repositórios públicos com GitHub Pages ----
 const IGNORE=new Set(['area-de-trabalho',USER+'.github.io']);
@@ -360,13 +442,13 @@ const applyRepos=names=>{
   byId=next};
 const cachedRepos=store.get('repos',null);
 if(cachedRepos)applyRepos(cachedRepos.list);
-const defaultLayout=()=>Object.fromEntries(AREAS.map(a=>[a.id,Object.values(byId).filter(x=>x.area===a.id).map(x=>x.id)]));
+const defaultLayout=()=>{const ids=new Set(AREAS.map(a=>a.id));return Object.fromEntries(AREAS.map(a=>[a.id,Object.values(byId).filter(x=>(ids.has(x.area)?x.area:'novos')===a.id).map(x=>x.id)]))};
 let layout=store.get('layout',null);
 const fixLayout=()=>{
   if(!layout||typeof layout!=='object')layout=defaultLayout();
   const seen=new Set();
   for(const a of AREAS){layout[a.id]=(layout[a.id]||[]).filter(id=>byId[id]&&!seen.has(id)&&seen.add(id))}
-  for(const id in byId)if(!seen.has(id))layout[byId[id].area].push(id);
+  for(const id in byId)if(!seen.has(id))(layout[byId[id].area]||layout.novos).push(id);
 };
 fixLayout();
 let purged=new Set(store.get('purged',[]));
@@ -438,7 +520,7 @@ installBtn.addEventListener('click',async()=>{
   if(deferred){deferred.prompt();try{const r=await deferred.userChoice;if(r.outcome==='accepted'){installBtn.hidden=true;store.set('installed',true)}}catch(e){}deferred=null;return}
   winInstall.classList.add('open')});
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.win').classList.remove('open')));
-[winHidden,winInstall,document.getElementById('winInfl')].forEach(w=>w.addEventListener('click',e=>{if(e.target===w)w.classList.remove('open')}));
+[winHidden,winInstall,document.getElementById('winInfl'),document.getElementById('winCfg')].forEach(w=>w.addEventListener('click',e=>{if(e.target===w)w.classList.remove('open')}));
 // ---- Índices de inflação (Banco Central / SGS) ----
 const INDICES=[
  {k:'IPCA',c:433,f:'IBGE',d:'Inflação oficial do Brasil'},
@@ -492,6 +574,61 @@ const loadInfl=async force=>{
 };
 document.getElementById('inflBtn').addEventListener('click',()=>{document.getElementById('winInfl').classList.add('open');loadInfl(false)});
 document.getElementById('inflRefresh').addEventListener('click',()=>loadInfl(true));
+
+// ---- Configurações: logo, tema, ícones, áreas ----
+const THEMES=[
+ {id:'agua',n:'Verde-água',bg:['#dff1ec','#0c1d1b'],t:'#56c6b5',w:['#56c6b5','#2f8f80','#14544b'],s:'#f2b544'},
+ {id:'oceano',n:'Oceano',bg:['#e2ecf8','#0b1626'],t:'#5b9df0',w:['#6aa6f2','#2f62b3','#14305f'],s:'#ffd27a'},
+ {id:'por',n:'Pôr do sol',bg:['#fbebe2','#1f120f'],t:'#f08a5d',w:['#f6a27a','#c4553a','#6b2622'],s:'#ffd166'},
+ {id:'lavanda',n:'Lavanda',bg:['#eee9f8','#16111f'],t:'#a68be8',w:['#b39ae9','#7656c4','#3b2a6b'],s:'#f7c6e0'},
+ {id:'floresta',n:'Floresta',bg:['#e6efe2','#0f1a10'],t:'#6fbf73',w:['#82c785','#3f8a48','#1d4a25'],s:'#f2d16b'},
+ {id:'areia',n:'Areia',bg:['#f4ede1','#1b1813'],t:'#d6a85c',w:['#e3c08a','#b08442','#5e4520'],s:'#f6e27a'},
+ {id:'grafite',n:'Grafite',bg:['#e9eaec','#141517'],t:'#9aa5b1',w:['#b5bec8','#6b7684','#33393f'],s:'#ff8a3d'},
+ {id:'rosa',n:'Rosa',bg:['#f9e6ee','#1e1117'],t:'#ee7fa8',w:['#f29bbb','#c8507e','#6e2443'],s:'#ffd6a5'}
+];
+const rootEl=document.documentElement;
+const applyTheme=id=>{const t=THEMES.find(x=>x.id===id)||THEMES[0];const st=rootEl.style;
+  st.setProperty('--bg',`light-dark(${t.bg[0]},${t.bg[1]})`);st.setProperty('--teal',t.t);
+  st.setProperty('--w1',t.w[0]);st.setProperty('--w2',t.w[1]);st.setProperty('--w3',t.w[2]);st.setProperty('--sun',t.s);
+  document.querySelector('meta[name=theme-color]')?.setAttribute('content',t.w[1])};
+const applyMode=m=>{if(m)rootEl.dataset.theme=m;else delete rootEl.dataset.theme};
+const applyView=v=>{document.body.classList.toggle('v-small',v==='small');document.body.classList.toggle('v-list',v==='list')};
+const logoMark=document.getElementById('logoMark'),defaultLogo=logoMark.innerHTML,brandName=document.getElementById('brandName');
+const applyLogo=()=>{const src=store.get('logo','');
+  logoMark.innerHTML=src&&/^data:image\/(png|jpeg|webp);base64,/.test(src)?`<img src="${src}" alt="Logomarca">`:defaultLogo;
+  const prev=document.getElementById('logoPrev');prev.innerHTML=logoMark.innerHTML};
+const applyBrand=()=>{const b=store.get('brand',null);brandName.textContent=b===null?'eguilherme88':b;brandName.hidden=b==='';document.getElementById('brandInput').value=b===null?'eguilherme88':b};
+applyTheme(store.get('theme','agua'));applyMode(store.get('mode',''));applyView(store.get('view',''));applyLogo();applyBrand();
+const markSeg=(el,attr,val)=>el.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset[attr]===val));
+const renderCfg=()=>{
+  document.getElementById('themeList').innerHTML=THEMES.map(t=>`<button type="button" data-theme-id="${t.id}" class="${t.id===store.get('theme','agua')?'on':''}"><i style="background:linear-gradient(160deg,${t.bg[0]} 0 35%,${t.w[0]} 35% 60%,${t.w[1]} 60% 80%,${t.w[2]} 80%)"></i><span>${esc(t.n)}</span></button>`).join('');
+  markSeg(document.getElementById('modeSeg'),'mode',store.get('mode',''));
+  markSeg(document.getElementById('viewSeg'),'view',store.get('view',''));
+  const areas=AREAS;document.getElementById('areaList').innerHTML=areas.map((a,i)=>`<li data-aid="${esc(a.id)}"><input type="color" value="${esc(a.c)}" aria-label="Cor da área ${esc(a.name)}"><input type="text" value="${esc(a.name)}" maxlength="40" aria-label="Nome da área"><button type="button" class="ibtn" data-move="-1" ${i===0?'disabled':''} aria-label="Subir">▲</button><button type="button" class="ibtn" data-move="1" ${i===areas.length-1?'disabled':''} aria-label="Descer">▼</button>${a.id==='novos'?'<span class="ibtn" title="A área Novos recebe os apps novos e não pode ser excluída" style="display:grid;place-items:center">🔒</span>':`<button type="button" class="ibtn danger" data-del-area aria-label="Excluir área ${esc(a.name)}">✕</button>`}</li>`).join('');
+};
+document.getElementById('gearBtn').addEventListener('click',()=>{renderCfg();document.getElementById('winCfg').classList.add('open')});
+document.getElementById('themeList').addEventListener('click',e=>{const b=e.target.closest('[data-theme-id]');if(!b)return;store.set('theme',b.dataset.themeId);applyTheme(b.dataset.themeId);renderCfg()});
+document.getElementById('modeSeg').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(!b)return;store.set('mode',b.dataset.mode);applyMode(b.dataset.mode);renderCfg()});
+document.getElementById('viewSeg').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b)return;store.set('view',b.dataset.view);applyView(b.dataset.view);renderCfg()});
+document.getElementById('brandInput').addEventListener('input',e=>{store.set('brand',e.target.value.trim());applyBrand()});
+document.getElementById('logoDel').addEventListener('click',()=>{store.set('logo','');applyLogo()});
+document.getElementById('logoFile').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f||!f.type.startsWith('image/'))return;
+  const url=URL.createObjectURL(f),img=new Image();
+  img.onload=()=>{const max=320,k=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*k));c.height=Math.max(1,Math.round(img.height*k));
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);store.set('logo',c.toDataURL('image/png'));applyLogo()};
+  img.onerror=()=>{URL.revokeObjectURL(url);showToast('Não foi possível ler essa imagem.',false)};img.src=url});
+const areaList=document.getElementById('areaList');
+areaList.addEventListener('input',e=>{const li=e.target.closest('[data-aid]');if(!li)return;const a=AREAS.find(x=>x.id===li.dataset.aid);if(!a)return;
+  if(e.target.type==='color')a.c=e.target.value;else a.name=e.target.value.trim()||a.name;saveAreas();render()});
+areaList.addEventListener('click',e=>{const li=e.target.closest('[data-aid]');if(!li)return;const i=AREAS.findIndex(x=>x.id===li.dataset.aid);if(i<0)return;
+  const mv=e.target.closest('[data-move]');if(mv){const j=i+(+mv.dataset.move);if(j<0||j>=AREAS.length)return;[AREAS[i],AREAS[j]]=[AREAS[j],AREAS[i]];saveAreas();render();renderCfg();return}
+  if(e.target.closest('[data-del-area]')){const a=AREAS[i];if(a.id==='novos')return;
+    layout.novos.push(...(layout[a.id]||[]));delete layout[a.id];AREAS.splice(i,1);saveAreas();store.set('layout',layout);render();renderCfg();
+    showToast(`Área "${a.name}" excluída. Os apps dela estão em "Novos".`,false)}});
+document.getElementById('areaAdd').addEventListener('submit',e=>{e.preventDefault();const inp=document.getElementById('areaName'),name=inp.value.trim();if(!name)return;
+  const pal=['#e0663a','#3b7fd4','#7a5cc7','#2aa58f','#d1495b','#c28a1a','#0f8b8d','#8e5bd6'];
+  const id='a'+Date.now().toString(36);const ni=AREAS.findIndex(a=>a.id==='novos');
+  AREAS.splice(ni<0?AREAS.length:ni,0,{id,name:name.slice(0,40),c:pal[AREAS.length%pal.length]});layout[id]=[];saveAreas();store.set('layout',layout);inp.value='';render();renderCfg()});
 
 // ---- Painel Gmail ----
 const mailTab=document.getElementById('mailTab');
