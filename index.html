@@ -407,7 +407,7 @@ const loadInfl=async force=>{
   if(!force&&c&&Date.now()-c.t<3*60*60*1000)return;
   if(!c)inflBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--mute)">Carregando…</td></tr>';
   const v={};
-  await Promise.all(INDICES.map(async i=>{try{const r=await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${i.c}/dados/ultimos/24?formato=json`,{cache:'no-store'});if(!r.ok)return;const rows=await r.json();if(Array.isArray(rows)){const x=calcIdx(rows);if(x)v[i.k]=x}}catch(e){}}));
+  await Promise.all(INDICES.map(async i=>{try{const r=await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${i.c}/dados/ultimos/20?formato=json`,{cache:'no-store'});if(!r.ok)return;const rows=await r.json();if(Array.isArray(rows)){const x=calcIdx(rows);if(x)v[i.k]=x}}catch(e){}}));
   if(Object.keys(v).length){const d={t:Date.now(),v};store.set('inflacao',d);showInfl(d)}
   else if(c)showInfl({...c,offline:true});else showInfl({t:Date.now(),v:{}});
 };
