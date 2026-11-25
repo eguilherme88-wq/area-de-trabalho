@@ -482,12 +482,12 @@ const showInfl=data=>{
 const loadInfl=async force=>{
   const c=store.get('inflacao',null);
   if(c)showInfl(c);
-  if(!force&&c&&Date.now()-c.t<3*60*60*1000)return;
+  if(!force&&c&&c.ver===2&&Date.now()-c.t<3*60*60*1000)return;
   if(!c)inflBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--mute)">Carregando…</td></tr>';
   const v={};
   await Promise.all(INDICES.map(async i=>{try{const r=await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${i.c}/dados/ultimos/20?formato=json`,{cache:'no-store'});if(!r.ok)return;const rows=await r.json();if(Array.isArray(rows)){const x=calcIdx(rows);if(x)v[i.k]=x}}catch(e){}}));
   let hoje=null;try{const r=await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.195/dados/ultimos/1?formato=json',{cache:'no-store'});if(r.ok){const a=await r.json();if(Array.isArray(a)&&a[0])hoje=parseFloat(a[0].valor)}}catch(e){}
-  if(Object.keys(v).length){const d={t:Date.now(),v,hoje:isNaN(hoje)?null:hoje};store.set('inflacao',d);showInfl(d)}
+  if(Object.keys(v).length){const d={ver:2,t:Date.now(),v,hoje:isNaN(hoje)?null:hoje};store.set('inflacao',d);showInfl(d)}
   else if(c)showInfl({...c,offline:true});else showInfl({t:Date.now(),v:{}});
 };
 document.getElementById('inflBtn').addEventListener('click',()=>{document.getElementById('winInfl').classList.add('open');loadInfl(false)});
