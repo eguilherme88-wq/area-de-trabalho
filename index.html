@@ -52,6 +52,7 @@ button,input{font:inherit;color:inherit}
 .ihero b{font-size:clamp(24px,3vw,30px);font-variant-numeric:tabular-nums;line-height:1.15}
 .ihero small{font-size:12px;color:var(--mute)}
 @media(max-width:700px){.itab .hs{display:none}}
+.ihero{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
 /* painel Gmail retrátil */
 .mail{position:fixed;top:0;right:0;bottom:0;width:min(340px,100%);z-index:8;background:var(--bg);border-left:1px solid var(--line);box-shadow:-20px 0 40px -24px rgba(0,0,0,.4);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
 body.mail-open .mail{transform:none}
@@ -449,13 +450,14 @@ const INDICES=[
  {k:'IGP-10',c:7447,f:'FGV',d:'Índice geral de preços (10 a 10)'},
  {k:'IPC-Br',c:191,f:'FGV',d:'Preços ao consumidor (FGV)'},
  {k:'IPC-Fipe',c:193,f:'Fipe',d:'Preços ao consumidor em São Paulo'},
- {k:'INCC-M',c:7456,f:'FGV',d:'Custo da construção civil'}
+ {k:'INCC-M',c:7456,f:'FGV',d:'Custo da construção civil'},
+ {k:'Poupança',c:196,f:'Banco Central',d:'Rendimento (depósito no dia 1º de cada mês)',yld:true}
 ];
 const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const pctf=(v,sign)=>v==null||isNaN(v)?'–':(sign&&v>0?'+':'')+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
 const acc=arr=>(arr.reduce((p,v)=>p*(1+v/100),1)-1)*100;
 const calcIdx=rows=>{
-  const pts=rows.map(r=>{const [d,m,y]=r.data.split('/').map(Number);return{y,m,v:parseFloat(r.valor)}}).filter(p=>!isNaN(p.v));
+  const pts=rows.map(r=>{const [d,m,y]=r.data.split('/').map(Number);return{y,m,v:parseFloat(r.valor)}}).filter(p=>!isNaN(p.v)).sort((a,b)=>a.y-b.y||a.m-b.m);
   if(!pts.length)return null;
   const last=pts[pts.length-1],l12=pts.slice(-12);
   return{ref:`${MES[last.m-1]}/${last.y}`,mes:last.v,ano:acc(pts.filter(p=>p.y===last.y).map(p=>p.v)),m12:l12.length===12?acc(l12.map(p=>p.v)):null,serie:l12.map(p=>p.v)};
@@ -468,10 +470,14 @@ const showInfl=data=>{
   const ok=INDICES.map(i=>({...i,r:data.v[i.k]})).filter(i=>i.r);
   if(!ok.length){inflBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--mute)">Não foi possível carregar os índices. Verifique a conexão e tente atualizar.</td></tr>';inflHero.innerHTML='';return}
   const cls=v=>v<0?'neg':'';
-  inflBody.innerHTML=ok.map(i=>`<tr><td><b>${esc(i.k)}</b><small>${esc(i.d)} · ${esc(i.f)}</small></td><td><span class="${cls(i.r.mes)}">${pctf(i.r.mes)}</span><br><small>${esc(i.r.ref)}</small></td><td class="${cls(i.r.ano)}">${pctf(i.r.ano)}</td><td class="big ${cls(i.r.m12)}">${pctf(i.r.m12)}</td><td class="hs">${spark(i.r.serie)}</td></tr>`).join('');
+  inflBody.innerHTML=ok.map(i=>`${i.yld?'<tr><td colspan="5" style="padding:14px 10px 4px;font-size:13px;color:var(--mute);font-weight:600">Investimento</td></tr>':''}<tr><td><b>${esc(i.k)}</b><small>${esc(i.d)} · ${esc(i.f)}</small></td><td><span class="${cls(i.r.mes)}">${pctf(i.r.mes)}</span><br><small>${esc(i.r.ref)}</small></td><td class="${cls(i.r.ano)}">${pctf(i.r.ano)}</td><td class="big ${cls(i.r.m12)}">${pctf(i.r.m12)}</td><td class="hs">${spark(i.r.serie)}</td></tr>`).join('');
   const h=k=>data.v[k];
-  inflHero.innerHTML=[['IPCA','12 meses'],['IGP-M','12 meses'],['INPC','12 meses']].filter(([k])=>h(k)).map(([k,l])=>`<div><span>${esc(k)} · ${l}</span><b>${pctf(h(k).m12)}</b><br><small>${esc(h(k).ref)} · no mês ${pctf(h(k).mes)}</small></div>`).join('');
-  inflNote.textContent=`Fonte: Banco Central do Brasil (SGS), com dados do IBGE, FGV e Fipe. Valores em %; “No ano” e “12 meses” são acumulados compostos. Atualizado em ${new Date(data.t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${data.offline?' (sem conexão: últimos dados salvos)':''}.`;
+  let hero=[['IPCA','12 meses'],['IGP-M','12 meses'],['INPC','12 meses']].filter(([k])=>h(k)).map(([k,l])=>`<div><span>${esc(k)} · ${l}</span><b>${pctf(h(k).m12)}</b><br><small>${esc(h(k).ref)} · no mês ${pctf(h(k).mes)}</small></div>`).join('');
+  const pp=h('Poupança'),ip=h('IPCA');
+  if(pp){const real=ip&&pp.m12!=null&&ip.m12!=null?((1+pp.m12/100)/(1+ip.m12/100)-1)*100:null;
+    hero+=`<div><span>Poupança · 12 meses</span><b>${pctf(pp.m12)}</b><br><small>${data.hoje!=null?`rende hoje ${pctf(data.hoje)} ao mês`:`${esc(pp.ref)} · no mês ${pctf(pp.mes)}`}${real!=null?` · ganho real ${pctf(real,true)}`:''}</small></div>`}
+  inflHero.innerHTML=hero;
+  inflNote.textContent=`Fonte: Banco Central do Brasil (SGS), com dados do IBGE, FGV e Fipe. Valores em %; “No ano” e “12 meses” são acumulados compostos. Ganho real da poupança = rendimento em 12 meses descontado o IPCA. Atualizado em ${new Date(data.t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${data.offline?' (sem conexão: últimos dados salvos)':''}.`;
 };
 const loadInfl=async force=>{
   const c=store.get('inflacao',null);
@@ -480,7 +486,8 @@ const loadInfl=async force=>{
   if(!c)inflBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--mute)">Carregando…</td></tr>';
   const v={};
   await Promise.all(INDICES.map(async i=>{try{const r=await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${i.c}/dados/ultimos/20?formato=json`,{cache:'no-store'});if(!r.ok)return;const rows=await r.json();if(Array.isArray(rows)){const x=calcIdx(rows);if(x)v[i.k]=x}}catch(e){}}));
-  if(Object.keys(v).length){const d={t:Date.now(),v};store.set('inflacao',d);showInfl(d)}
+  let hoje=null;try{const r=await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.195/dados/ultimos/1?formato=json',{cache:'no-store'});if(r.ok){const a=await r.json();if(Array.isArray(a)&&a[0])hoje=parseFloat(a[0].valor)}}catch(e){}
+  if(Object.keys(v).length){const d={t:Date.now(),v,hoje:isNaN(hoje)?null:hoje};store.set('inflacao',d);showInfl(d)}
   else if(c)showInfl({...c,offline:true});else showInfl({t:Date.now(),v:{}});
 };
 document.getElementById('inflBtn').addEventListener('click',()=>{document.getElementById('winInfl').classList.add('open');loadInfl(false)});
