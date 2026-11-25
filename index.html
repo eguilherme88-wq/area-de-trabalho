@@ -36,11 +36,15 @@ button,input{font:inherit;color:inherit}
 .btn{height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--zone);cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:8px}
 .btn:hover{border-color:var(--teal)}
 .btn svg{width:20px;height:20px}
+.usd{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--zone);white-space:nowrap;line-height:1.15}
+.usd b{font-variant-numeric:tabular-nums;font-size:16px}
+.usd small{display:block;font-size:12px;color:var(--mute)}
+.usd .up{color:#1f9d6b}.usd .dn{color:#d1495b}
 .clock{font-weight:700;font-variant-numeric:tabular-nums;text-align:right;line-height:1.2;white-space:nowrap}
 .clock small{display:block;font-weight:500;color:var(--mute);font-size:13px}
-main{padding:clamp(18px,3vw,40px) max(3vw,14px) 60px;max-width:1400px;margin:0 auto}
-h1{font-size:clamp(28px,4vw,44px);line-height:1.05;margin:0 0 6px;text-wrap:balance}
-.sub{color:var(--mute);margin:0 0 24px}
+main{padding:clamp(12px,1.6vw,22px) max(3vw,14px) 60px;max-width:1400px;margin:0 auto}
+h1{font-size:clamp(20px,2vw,24px);line-height:1.2;margin:0 0 2px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:14px}
 .zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
 .zone{background:var(--zone);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:20px;padding:16px 14px 18px;transition:box-shadow .2s,border-color .2s}
 .zone.over{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 40%,transparent)}
@@ -59,7 +63,10 @@ h1{font-size:clamp(28px,4vw,44px);line-height:1.05;margin:0 0 6px;text-wrap:bala
 .gh{position:absolute;top:4px;right:6px;width:26px;height:26px;border-radius:8px;display:none;place-items:center;background:var(--bar);border:1px solid var(--line)}
 .gh svg{width:14px;height:14px}
 .rm{position:absolute;top:4px;left:6px;width:26px;height:26px;border-radius:50%;display:none;place-items:center;background:#d1495b;color:#fff;font-weight:800;font-size:16px;line-height:1;border:2px solid var(--bar)}
-.app:hover .gh,.app:focus-within .gh,.app:hover .rm,.app:focus-within .rm,body.edit .rm{display:grid}
+[hidden]{display:none!important}
+.app:hover .gh,.app:focus-within .gh{display:grid}
+body.edit .rm{display:grid}
+body.edit .gh{display:none!important}
 body.edit .app .ic{animation:wig .35s ease-in-out infinite alternate}
 @keyframes wig{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
 .btn.on{background:var(--teal);color:#06231f;border-color:var(--teal)}
@@ -92,7 +99,8 @@ body.edit .app .ic{animation:wig .35s ease-in-out infinite alternate}
 form.add{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 form.add input{height:44px;border-radius:10px;border:1px solid var(--line);background:var(--zone);padding:0 12px;font-size:16px}
 form.add .full{grid-column:1/-1}
-@media(max-width:600px){.clock{display:none}form.add{grid-template-columns:1fr}.btn span{display:none}}
+@media(max-width:900px){.clock{display:none}}
+@media(max-width:600px){form.add{grid-template-columns:1fr}.btn span{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -118,6 +126,7 @@ form.add .full{grid-column:1/-1}
   <button class="btn" id="editBtn" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span>Editar</span></button>
   <button class="btn" id="hiddenBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span>Removidos</span> <b id="hiddenCount"></b></button>
   <button class="btn prime" id="installBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg><span>Instalar no PC</span></button>
+  <div class="usd" id="usd" title="Cotação do dólar comercial (compra), atualizada a cada minuto"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M16.5 7.5c-.8-1.2-2.4-2-4.5-2-2.5 0-4 1.3-4 3s1.5 2.5 4 3 4 1.5 4 3.3-1.6 3.2-4 3.2c-2.2 0-3.8-.9-4.6-2.2"/></svg><div><b id="usdVal">US$ …</b><small id="usdVar">carregando</small></div></div>
   <div class="clock" id="clock"></div>
 </header>
 
@@ -149,7 +158,9 @@ form.add .full{grid-column:1/-1}
 <div class="win" id="winHidden" role="dialog" aria-modal="true" aria-labelledby="ht">
   <div class="panel">
     <div class="ph"><h3 id="ht">Apps removidos</h3><button class="x" data-close aria-label="Fechar">×</button></div>
-    <div class="pb"><ul class="files" id="hiddenList"></ul><p class="hint">Os apps removidos só somem desta área de trabalho. O app e o repositório no GitHub continuam intactos.</p></div>
+    <div class="pb"><ul class="files" id="hiddenList"></ul>
+      <div id="emptyRow" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn" id="emptyTrash" style="color:#d1495b">Esvaziar lixeira</button><span id="confirmTrash" hidden style="font-size:14px">Excluir todos de vez? <button class="btn" id="yesTrash" style="color:#d1495b">Sim, excluir</button> <button class="btn" id="noTrash">Cancelar</button></span></div>
+      <p class="hint">Excluir aqui tira o app de vez da área de trabalho e da lixeira. O app e o repositório no GitHub continuam intactos. Para trazer de volta, use “Restaurar organização original”.</p></div>
   </div>
 </div>
 
@@ -241,14 +252,16 @@ const fixLayout=()=>{
   for(const id in byId)if(!seen.has(id))layout[byId[id].area].push(id);
 };
 fixLayout();
-let hidden=new Set(store.get('hidden',[]).filter(id=>byId[id]));
+let purged=new Set(store.get('purged',[]).filter(id=>byId[id]));
+const savePurged=()=>store.set('purged',[...purged]);
+let hidden=new Set(store.get('hidden',[]).filter(id=>byId[id]&&!purged.has(id)));
 const saveHidden=()=>store.set('hidden',[...hidden]);
 const zones=document.getElementById('zones'),q=document.getElementById('q');
 const ghIcon='<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.6 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 0z"/></svg>';
 const render=()=>{
   const term=q.value.trim().toLowerCase();
   zones.innerHTML=AREAS.map(a=>{
-    const ids=layout[a.id].filter(id=>!hidden.has(id)).filter(id=>!term||byId[id].name.toLowerCase().includes(term)||id.includes(term));
+    const ids=layout[a.id].filter(id=>!hidden.has(id)&&!purged.has(id)).filter(id=>!term||byId[id].name.toLowerCase().includes(term)||id.includes(term));
     const icons=ids.map(id=>{const x=byId[id];return `<a class="app" draggable="true" data-id="${esc(id)}" href="https://${USER}.github.io/${esc(id)}/" target="_blank" rel="noopener" title="${esc(x.name)}">
       <span class="ic"><svg viewBox="0 0 24 24">${P[x.icon]||P.box}</svg></span><b>${esc(x.name)}</b>
       <span class="rm" data-rm="${esc(id)}" title="Remover da área de trabalho" role="button" tabindex="0" aria-label="Remover ${esc(x.name)} da área de trabalho">−</span>
@@ -256,7 +269,7 @@ const render=()=>{
     return `<section class="zone" data-area="${a.id}" style="--c:${a.c}"><div class="zh"><i></i><h2>${esc(a.name)}</h2><span>${ids.length} ${ids.length===1?'app':'apps'}</span></div>
       <div class="icons">${icons||`<div class="empty">${term?'Nenhum app encontrado':'Arraste apps para cá'}</div>`}</div></section>`;
   }).join('');
-  const n=hidden.size;document.getElementById('hiddenCount').textContent=n?`(${n})`:'';
+  const n=hidden.size;document.getElementById('hiddenCount').textContent=n?`(${n})`:'';document.getElementById('hiddenBtn').hidden=!n&&!document.body.classList.contains('edit');
 };
 render();
 q.addEventListener('input',render);
@@ -278,23 +291,33 @@ zones.addEventListener('drop',e=>{const z=e.target.closest('.zone');if(!z||!drag
   const target=layout[z.dataset.area];const before=e.target.closest('.app');
   const i=before?target.indexOf(before.dataset.id):-1;i<0?target.push(dragId):target.splice(i,0,dragId);
   store.set('layout',layout);dragId=null;render()});
-document.getElementById('reset').addEventListener('click',()=>{layout=defaultLayout();store.set('layout',layout);hidden.clear();saveHidden();render()});
+document.getElementById('reset').addEventListener('click',()=>{layout=defaultLayout();store.set('layout',layout);hidden.clear();saveHidden();purged.clear();savePurged();render()});
 const editBtn=document.getElementById('editBtn');
-editBtn.addEventListener('click',()=>{const on=document.body.classList.toggle('edit');editBtn.classList.toggle('on',on);editBtn.setAttribute('aria-pressed',on);editBtn.querySelector('span').textContent=on?'Concluir':'Editar'});
+editBtn.addEventListener('click',()=>{const on=document.body.classList.toggle('edit');editBtn.classList.toggle('on',on);editBtn.setAttribute('aria-pressed',on);editBtn.querySelector('span').textContent=on?'Concluir':'Editar';render()});
 // apps removidos
 const winHidden=document.getElementById('winHidden'),hl=document.getElementById('hiddenList');
-const renderHidden=()=>{hl.innerHTML=hidden.size?[...hidden].map(id=>`<li><span style="flex:1;font-weight:600">${esc(byId[id].name)}</span><small>${esc(AREAS.find(a=>layout[a.id].includes(id))?.name||'')}</small><button class="btn" data-restore="${esc(id)}">Restaurar</button></li>`).join(''):'<li style="justify-content:center;color:var(--mute)">Nenhum app removido</li>'};
-hl.addEventListener('click',e=>{const b=e.target.closest('[data-restore]');if(b){hidden.delete(b.dataset.restore);saveHidden();render();renderHidden()}});
+const renderHidden=()=>{document.getElementById('emptyRow').hidden=!hidden.size;hl.innerHTML=hidden.size?[...hidden].map(id=>`<li><span style="flex:1;font-weight:600">${esc(byId[id].name)}</span><small>${esc(AREAS.find(a=>layout[a.id].includes(id))?.name||'')}</small><button class="btn" data-restore="${esc(id)}">Restaurar</button><button class="del" data-purge="${esc(id)}" title="Excluir de vez" aria-label="Excluir ${esc(byId[id].name)} de vez">✕</button></li>`).join(''):'<li style="justify-content:center;color:var(--mute)">Nenhum app removido</li>'};
+const purge=ids=>{for(const id of ids){hidden.delete(id);purged.add(id)}saveHidden();savePurged();render();renderHidden()};
+hl.addEventListener('click',e=>{const b=e.target.closest('[data-restore]');if(b){hidden.delete(b.dataset.restore);saveHidden();render();renderHidden()}
+  const d=e.target.closest('[data-purge]');if(d)purge([d.dataset.purge])});
+const confirmTrash=document.getElementById('confirmTrash'),emptyBtn=document.getElementById('emptyTrash');
+emptyBtn.addEventListener('click',()=>{confirmTrash.hidden=false;emptyBtn.hidden=true});
+document.getElementById('noTrash').addEventListener('click',()=>{confirmTrash.hidden=true;emptyBtn.hidden=false});
+document.getElementById('yesTrash').addEventListener('click',()=>{purge([...hidden]);confirmTrash.hidden=true;emptyBtn.hidden=false});
 document.getElementById('hiddenBtn').addEventListener('click',()=>{renderHidden();winHidden.classList.add('open')});
 // instalação (PWA) para Windows e Linux
 const installBtn=document.getElementById('installBtn'),winInstall=document.getElementById('winInstall');
 const standalone=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: window-controls-overlay)').matches;
 let deferred=null;
-if(!standalone())installBtn.hidden=false;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;installBtn.hidden=false});
-window.addEventListener('appinstalled',()=>{deferred=null;installBtn.hidden=true});
+// Esconde o botão quando já está instalado: rodando como app, marcado como instalado, ou detectado pelo navegador.
+installBtn.hidden=standalone()||store.get('installed',false);
+if(standalone())store.set('installed',true);
+if(navigator.getInstalledRelatedApps)navigator.getInstalledRelatedApps().then(a=>{if(a&&a.length){installBtn.hidden=true;store.set('installed',true)}}).catch(()=>{});
+// Se o navegador oferece instalar, é porque NÃO está instalado (ex.: foi desinstalado): mostra de novo.
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;store.set('installed',false);if(!standalone())installBtn.hidden=false});
+window.addEventListener('appinstalled',()=>{deferred=null;installBtn.hidden=true;store.set('installed',true)});
 installBtn.addEventListener('click',async()=>{
-  if(deferred){deferred.prompt();try{const r=await deferred.userChoice;if(r.outcome==='accepted')installBtn.hidden=true}catch(e){}deferred=null;return}
+  if(deferred){deferred.prompt();try{const r=await deferred.userChoice;if(r.outcome==='accepted'){installBtn.hidden=true;store.set('installed',true)}}catch(e){}deferred=null;return}
   winInstall.classList.add('open')});
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.win').classList.remove('open')));
 [winHidden,winInstall].forEach(w=>w.addEventListener('click',e=>{if(e.target===w)w.classList.remove('open')}));
@@ -305,6 +328,19 @@ const tick=()=>{const d=new Date(),h=d.getHours();
   clock.innerHTML=`${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}<small>${d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'})}</small>`;
   greet.textContent=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'};
 tick();setInterval(tick,15000);
+// cotação do dólar (AwesomeAPI; reserva: open.er-api.com)
+const usdVal=document.getElementById('usdVal'),usdVar=document.getElementById('usdVar');
+const brl=n=>'R$ '+Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+const loadUsd=async()=>{
+  try{const r=await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL',{cache:'no-store'});const d=(await r.json()).USDBRL;
+    const pct=parseFloat(d.pctChange);usdVal.textContent='US$ 1 = '+brl(parseFloat(d.bid));
+    const hora=new Date(d.create_date.replace(' ','T')).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    usdVar.className=pct>0?'up':pct<0?'dn':'';usdVar.textContent=`${pct>0?'▲':pct<0?'▼':'■'} ${Math.abs(pct).toLocaleString('pt-BR',{maximumFractionDigits:2})}% · ${hora}`;
+    store.set('usd',{v:usdVal.textContent,t:usdVar.textContent});return}catch(e){}
+  try{const r=await fetch('https://open.er-api.com/v6/latest/USD');const d=await r.json();usdVal.textContent='US$ 1 = '+brl(d.rates.BRL);usdVar.className='';usdVar.textContent='atualizado hoje';return}catch(e){}
+  const c=store.get('usd',null);if(c){usdVal.textContent=c.v;usdVar.textContent='offline · '+c.t}else{usdVal.textContent='Dólar';usdVar.textContent='sem conexão'}
+};
+loadUsd();setInterval(loadUsd,60000);
 // files folder
 let files=store.get('files',[
  {name:'Exemplo: Planilha de controle',folder:'Geral',url:'https://drive.google.com/'}
