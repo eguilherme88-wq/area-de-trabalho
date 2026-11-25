@@ -52,6 +52,33 @@ button,input{font:inherit;color:inherit}
 .ihero b{font-size:clamp(24px,3vw,30px);font-variant-numeric:tabular-nums;line-height:1.15}
 .ihero small{font-size:12px;color:var(--mute)}
 @media(max-width:700px){.itab .hs{display:none}}
+/* painel Gmail retrátil */
+.mail{position:fixed;top:0;right:0;bottom:0;width:min(340px,100%);z-index:8;background:var(--bg);border-left:1px solid var(--line);box-shadow:-20px 0 40px -24px rgba(0,0,0,.4);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+body.mail-open .mail{transform:none}
+@media(min-width:1100px){body.mail-open{padding-right:340px}body.mail-open .bar{padding-right:max(3vw,14px)}}
+body{transition:padding-right .25s ease}
+.mtab{position:fixed;right:0;top:50%;z-index:9;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;border-radius:14px 0 0 14px;border:1px solid var(--line);border-right:0;background:var(--bar);backdrop-filter:blur(10px);cursor:pointer;font-weight:700;font-size:13px;transition:right .25s ease;box-shadow:-6px 0 18px -10px rgba(0,0,0,.35)}
+.mtab span{writing-mode:vertical-rl;transform:rotate(180deg)}
+.mtab svg{width:22px;height:22px}
+body.mail-open .mtab{right:min(340px,100%)}
+@media(max-width:600px){body.mail-open .mtab{right:calc(100% - 44px)}}
+.mh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.mh h3{margin:0;flex:1;font-size:18px}
+.mb{padding:14px 16px 24px;overflow:auto;display:grid;gap:14px;align-content:start}
+.acct{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--zone)}
+.acct .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#d93025;color:#fff;font-weight:800;flex:none}
+.acct div{flex:1;overflow-wrap:anywhere;font-weight:600;font-size:14px}
+.acct button{border:0;background:none;color:var(--mute);text-decoration:underline;cursor:pointer;font-size:13px;padding:6px}
+.mfield{width:100%;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--zone);padding:0 12px;font-size:16px}
+textarea.mfield{height:110px;padding:10px 12px;resize:vertical}
+.mgo{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:12px;background:#d93025;color:#fff;font-weight:700;text-decoration:none}
+.mgo:hover{filter:brightness(1.08)}
+.mlinks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mlinks a{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--zone);color:inherit;text-decoration:none;font-size:14px;font-weight:600}
+.mlinks a:hover{border-color:#d93025}
+.mlinks svg{width:18px;height:18px;flex:none}
+.mb h4{margin:4px 0 -6px;font-size:14px;color:var(--mute);font-weight:600}
+.mb form{display:grid;gap:8px}
 .usd{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--zone);white-space:nowrap;line-height:1.15}
 .usd b{font-variant-numeric:tabular-nums;font-size:16px}
 .usd small{display:block;font-size:12px;color:var(--mute)}
@@ -208,6 +235,27 @@ form.add .full{grid-column:1/-1}
     </div>
   </div>
 </div>
+
+<button class="mtab" id="mailTab" aria-expanded="false" aria-controls="mailPanel" title="Mostrar/ocultar Gmail"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#d93025"/><path d="m3.5 6 8.5 7 8.5-7" stroke="#d93025"/></svg><span>Gmail</span></button>
+<aside class="mail" id="mailPanel" aria-label="Gmail">
+  <div class="mh"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#d93025"/><path d="m3.5 6 8.5 7 8.5-7" stroke="#d93025"/></svg><h3>Gmail</h3><button class="x" id="mailClose" aria-label="Recolher painel do Gmail" title="Recolher">›</button></div>
+  <div class="mb">
+    <form id="acctForm"><label for="acctMail" style="font-weight:600;font-size:14px">Seu e-mail do Gmail</label><input class="mfield" id="acctMail" type="email" placeholder="seunome@gmail.com" autocomplete="email" required><button class="btn" type="submit" style="justify-content:center">Salvar</button></form>
+    <div class="acct" id="acctBox" hidden><span class="av" id="acctAv"></span><div id="acctTxt"></div><button id="acctEdit">trocar</button></div>
+    <a class="mgo" id="mInbox" href="https://mail.google.com/mail/" target="_blank" rel="noopener">Abrir caixa de entrada</a>
+    <div class="mlinks" id="mLinks"></div>
+    <h4>Buscar e-mails</h4>
+    <form id="mSearch"><input class="mfield" id="mQ" type="search" placeholder="Ex.: nota fiscal, de:fulano" aria-label="Buscar no Gmail"></form>
+    <h4>Escrever e-mail</h4>
+    <form id="mCompose">
+      <input class="mfield" id="mTo" type="text" placeholder="Para" aria-label="Para" autocomplete="off">
+      <input class="mfield" id="mSu" type="text" placeholder="Assunto" aria-label="Assunto">
+      <textarea class="mfield" id="mBody" placeholder="Mensagem" aria-label="Mensagem"></textarea>
+      <button class="btn" type="submit" style="justify-content:center">Continuar no Gmail</button>
+      <p class="hint" style="margin:0">Abre o Gmail com o e-mail preenchido. O envio é feito por você, no Gmail.</p>
+    </form>
+  </div>
+</aside>
 
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="undo">Desfazer</button></div>
 
@@ -413,6 +461,34 @@ const loadInfl=async force=>{
 };
 document.getElementById('inflBtn').addEventListener('click',()=>{document.getElementById('winInfl').classList.add('open');loadInfl(false)});
 document.getElementById('inflRefresh').addEventListener('click',()=>loadInfl(true));
+
+// ---- Painel Gmail ----
+const mailTab=document.getElementById('mailTab');
+const setMail=open=>{document.body.classList.toggle('mail-open',open);mailTab.setAttribute('aria-expanded',open);store.set('mailOpen',open)};
+mailTab.addEventListener('click',()=>setMail(!document.body.classList.contains('mail-open')));
+document.getElementById('mailClose').addEventListener('click',()=>setMail(false));
+setMail(store.get('mailOpen',false)&&innerWidth>=1100);
+let acct=store.get('gmail','');
+const gbase=()=>'https://mail.google.com/mail/'+(acct?'?authuser='+encodeURIComponent(acct):'');
+const MLINKS=[['Entrada','#inbox','<path d="M3 13h5l2 3h4l2-3h5M5 5h14l2 8v6H3v-6z"/>'],['Não lidos','#search/is%3Aunread','<circle cx="12" cy="12" r="4" fill="currentColor"/>'],['Com estrela','#starred','<path d="m12 4 2.5 5 5.5.8-4 3.9.9 5.5L12 16.6 7.1 19.2l.9-5.5-4-3.9 5.5-.8z"/>'],['Enviados','#sent','<path d="m3 11 18-7-7 18-2-8z"/>'],['Rascunhos','#drafts','<path d="M4 20h4L19 9l-4-4L4 16z"/>'],['Com anexo','#search/has%3Aattachment','<path d="m20 11-8 8a5 5 0 0 1-7-7l8-8a3.5 3.5 0 0 1 5 5l-8 8a2 2 0 0 1-3-3l7-7"/>']];
+const renderMail=()=>{
+  document.getElementById('acctForm').hidden=!!acct;document.getElementById('acctBox').hidden=!acct;
+  document.getElementById('acctTxt').textContent=acct;document.getElementById('acctAv').textContent=(acct[0]||'?').toUpperCase();
+  document.getElementById('mInbox').href=gbase()+'#inbox';
+  document.getElementById('mLinks').innerHTML=MLINKS.map(([t,h,ic])=>`<a href="${gbase()+h}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>${t}</a>`).join('');
+};
+renderMail();
+const openUrl=u=>{const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';a.click()};
+document.getElementById('acctForm').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('acctMail').value.trim();if(!v)return;acct=v;store.set('gmail',acct);renderMail()});
+document.getElementById('acctEdit').addEventListener('click',()=>{document.getElementById('acctMail').value=acct;acct='';renderMail();document.getElementById('acctMail').focus()});
+document.getElementById('mSearch').addEventListener('submit',e=>{e.preventDefault();const q=document.getElementById('mQ').value.trim();if(q)openUrl(gbase()+'#search/'+encodeURIComponent(q))});
+const draft=store.get('mailDraft',{});['mTo','mSu','mBody'].forEach(id=>{const el=document.getElementById(id);el.value=draft[id]||'';el.addEventListener('input',()=>{draft[id]=el.value;store.set('mailDraft',draft)})});
+document.getElementById('mCompose').addEventListener('submit',e=>{e.preventDefault();
+  const p=new URLSearchParams({view:'cm',fs:'1'});if(acct)p.set('authuser',acct);
+  const to=document.getElementById('mTo').value.trim(),su=document.getElementById('mSu').value,body=document.getElementById('mBody').value;
+  if(to)p.set('to',to);if(su)p.set('su',su);if(body)p.set('body',body);
+  openUrl('https://mail.google.com/mail/?'+p.toString());
+  e.target.reset();for(const k in draft)delete draft[k];store.set('mailDraft',draft)});
 
 // Busca a lista atualizada no GitHub (no máximo a cada 5 min, para respeitar o limite da API).
 const syncRepos=async(force)=>{
