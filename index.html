@@ -36,6 +36,22 @@ button,input{font:inherit;color:inherit}
 .btn{height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--zone);cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:8px}
 .btn:hover{border-color:var(--teal)}
 .btn svg{width:20px;height:20px}
+.infl{width:min(980px,100%)}
+.itab{width:100%;border-collapse:collapse;font-size:15px}
+.itab th{font-size:13px;font-weight:600;color:var(--mute);text-align:right;padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap}
+.itab th:first-child,.itab td:first-child{text-align:left}
+.itab td{padding:10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.itab td:first-child{white-space:normal}
+.itab td b{display:block;font-size:15px}.itab td small{color:var(--mute);font-size:12px}
+.itab .neg{color:#1f9d6b}.itab .pos{color:#c2410c}
+.itab .big{font-weight:800;font-size:16px}
+.spark{width:110px;height:30px;display:block;margin-left:auto}
+.ihero{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-bottom:16px}
+.ihero div{background:var(--zone);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.ihero span{font-size:13px;color:var(--mute);display:block}
+.ihero b{font-size:clamp(24px,3vw,30px);font-variant-numeric:tabular-nums;line-height:1.15}
+.ihero small{font-size:12px;color:var(--mute)}
+@media(max-width:700px){.itab .hs{display:none}}
 .usd{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--zone);white-space:nowrap;line-height:1.15}
 .usd b{font-variant-numeric:tabular-nums;font-size:16px}
 .usd small{display:block;font-size:12px;color:var(--mute)}
@@ -99,8 +115,9 @@ body.edit .app .ic{animation:wig .35s ease-in-out infinite alternate}
 form.add{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 form.add input{height:44px;border-radius:10px;border:1px solid var(--line);background:var(--zone);padding:0 12px;font-size:16px}
 form.add .full{grid-column:1/-1}
-@media(max-width:1450px){.clock{display:none}}
-@media(max-width:1180px){.btn span{display:none}.btn{padding:0 12px}}
+@media(max-width:1600px){.clock{display:none}}
+@media(max-width:1440px){.bar .btn span{display:none}.bar .btn{padding:0 12px}.bar #inflBtn span{display:inline}}
+@media(max-width:760px){.bar #inflBtn span{display:none}}
 @media(max-width:600px){form.add{grid-template-columns:1fr}.btn span{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -127,6 +144,7 @@ form.add .full{grid-column:1/-1}
   <button class="btn" id="editBtn" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span>Editar</span></button>
   <button class="btn" id="hiddenBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span>Removidos</span> <b id="hiddenCount"></b></button>
   <button class="btn prime" id="installBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg><span>Instalar no PC</span></button>
+  <button class="btn" id="inflBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Índices de inflação</span></button>
   <div class="usd" id="usd" title="Cotação do dólar comercial (compra), atualizada a cada minuto"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M16.5 7.5c-.8-1.2-2.4-2-4.5-2-2.5 0-4 1.3-4 3s1.5 2.5 4 3 4 1.5 4 3.3-1.6 3.2-4 3.2c-2.2 0-3.8-.9-4.6-2.2"/></svg><div><b id="usdVal">US$ …</b><small id="usdVar">carregando</small></div></div>
   <div class="clock" id="clock"></div>
 </header>
@@ -176,6 +194,17 @@ form.add .full{grid-column:1/-1}
         <li>Confirme em <b>Instalar</b>. O atalho aparece no Menu Iniciar (Windows) ou no menu de aplicativos (Linux).</li>
       </ol>
       <p class="note">O Firefox não instala apps web. Use um dos navegadores acima. Para desinstalar, abra o app e use o menu ⋮ → <b>Desinstalar</b>.</p>
+    </div>
+  </div>
+</div>
+
+<div class="win" id="winInfl" role="dialog" aria-modal="true" aria-labelledby="inft">
+  <div class="panel infl">
+    <div class="ph"><h3 id="inft">Índices de inflação</h3><button class="btn" id="inflRefresh" title="Atualizar agora" aria-label="Atualizar agora"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button><button class="x" data-close aria-label="Fechar">×</button></div>
+    <div class="pb">
+      <div class="ihero" id="inflHero"></div>
+      <div class="scroll"><table class="itab"><thead><tr><th>Índice</th><th>Último mês</th><th>No ano</th><th>12 meses</th><th class="hs">Últimos 12 meses</th></tr></thead><tbody id="inflBody"><tr><td colspan="5" style="text-align:center;color:var(--mute)">Carregando…</td></tr></tbody></table></div>
+      <p class="hint" id="inflNote">Fonte: Banco Central do Brasil (SGS), com dados do IBGE, FGV e Fipe. Valores em %; “No ano” e “12 meses” são acumulados compostos.</p>
     </div>
   </div>
 </div>
@@ -336,7 +365,55 @@ installBtn.addEventListener('click',async()=>{
   if(deferred){deferred.prompt();try{const r=await deferred.userChoice;if(r.outcome==='accepted'){installBtn.hidden=true;store.set('installed',true)}}catch(e){}deferred=null;return}
   winInstall.classList.add('open')});
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('.win').classList.remove('open')));
-[winHidden,winInstall].forEach(w=>w.addEventListener('click',e=>{if(e.target===w)w.classList.remove('open')}));
+[winHidden,winInstall,document.getElementById('winInfl')].forEach(w=>w.addEventListener('click',e=>{if(e.target===w)w.classList.remove('open')}));
+// ---- Índices de inflação (Banco Central / SGS) ----
+const INDICES=[
+ {k:'IPCA',c:433,f:'IBGE',d:'Inflação oficial do Brasil'},
+ {k:'IPCA-15',c:7478,f:'IBGE',d:'Prévia do IPCA'},
+ {k:'IPCA-E',c:10764,f:'IBGE',d:'IPCA especial (prévias acumuladas)'},
+ {k:'INPC',c:188,f:'IBGE',d:'Famílias de 1 a 5 salários; reajuste salarial'},
+ {k:'IGP-M',c:189,f:'FGV',d:'Reajuste de aluguéis e contratos'},
+ {k:'IGP-DI',c:190,f:'FGV',d:'Índice geral de preços'},
+ {k:'IGP-10',c:7447,f:'FGV',d:'Índice geral de preços (10 a 10)'},
+ {k:'IPC-Br',c:191,f:'FGV',d:'Preços ao consumidor (FGV)'},
+ {k:'IPC-Fipe',c:193,f:'Fipe',d:'Preços ao consumidor em São Paulo'},
+ {k:'INCC-M',c:7456,f:'FGV',d:'Custo da construção civil'}
+];
+const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const pctf=(v,sign)=>v==null||isNaN(v)?'–':(sign&&v>0?'+':'')+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
+const acc=arr=>(arr.reduce((p,v)=>p*(1+v/100),1)-1)*100;
+const calcIdx=rows=>{
+  const pts=rows.map(r=>{const [d,m,y]=r.data.split('/').map(Number);return{y,m,v:parseFloat(r.valor)}}).filter(p=>!isNaN(p.v));
+  if(!pts.length)return null;
+  const last=pts[pts.length-1],l12=pts.slice(-12);
+  return{ref:`${MES[last.m-1]}/${last.y}`,mes:last.v,ano:acc(pts.filter(p=>p.y===last.y).map(p=>p.v)),m12:l12.length===12?acc(l12.map(p=>p.v)):null,serie:l12.map(p=>p.v)};
+};
+const spark=vals=>{if(!vals.length)return '';const W=110,H=30,mn=Math.min(0,...vals),mx=Math.max(0,...vals),rg=mx-mn||1,bw=W/vals.length;
+  const y0=H-((0-mn)/rg)*H;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><line x1="0" x2="${W}" y1="${y0}" y2="${y0}" stroke="currentColor" opacity=".25"/>${vals.map((v,i)=>{const y=H-((v-mn)/rg)*H;return `<rect x="${i*bw+1}" y="${Math.min(y,y0)}" width="${bw-2}" height="${Math.max(1,Math.abs(y0-y))}" rx="1" fill="${v<0?'#1f9d6b':'#e0663a'}"/>`}).join('')}</svg>`};
+const inflBody=document.getElementById('inflBody'),inflHero=document.getElementById('inflHero'),inflNote=document.getElementById('inflNote');
+const showInfl=data=>{
+  const ok=INDICES.map(i=>({...i,r:data.v[i.k]})).filter(i=>i.r);
+  if(!ok.length){inflBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--mute)">Não foi possível carregar os índices. Verifique a conexão e tente atualizar.</td></tr>';inflHero.innerHTML='';return}
+  const cls=v=>v<0?'neg':'';
+  inflBody.innerHTML=ok.map(i=>`<tr><td><b>${esc(i.k)}</b><small>${esc(i.d)} · ${esc(i.f)}</small></td><td><span class="${cls(i.r.mes)}">${pctf(i.r.mes)}</span><br><small>${esc(i.r.ref)}</small></td><td class="${cls(i.r.ano)}">${pctf(i.r.ano)}</td><td class="big ${cls(i.r.m12)}">${pctf(i.r.m12)}</td><td class="hs">${spark(i.r.serie)}</td></tr>`).join('');
+  const h=k=>data.v[k];
+  inflHero.innerHTML=[['IPCA','12 meses'],['IGP-M','12 meses'],['INPC','12 meses']].filter(([k])=>h(k)).map(([k,l])=>`<div><span>${esc(k)} · ${l}</span><b>${pctf(h(k).m12)}</b><br><small>${esc(h(k).ref)} · no mês ${pctf(h(k).mes)}</small></div>`).join('');
+  inflNote.textContent=`Fonte: Banco Central do Brasil (SGS), com dados do IBGE, FGV e Fipe. Valores em %; “No ano” e “12 meses” são acumulados compostos. Atualizado em ${new Date(data.t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${data.offline?' (sem conexão: últimos dados salvos)':''}.`;
+};
+const loadInfl=async force=>{
+  const c=store.get('inflacao',null);
+  if(c)showInfl(c);
+  if(!force&&c&&Date.now()-c.t<3*60*60*1000)return;
+  if(!c)inflBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--mute)">Carregando…</td></tr>';
+  const v={};
+  await Promise.all(INDICES.map(async i=>{try{const r=await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${i.c}/dados/ultimos/24?formato=json`,{cache:'no-store'});if(!r.ok)return;const rows=await r.json();if(Array.isArray(rows)){const x=calcIdx(rows);if(x)v[i.k]=x}}catch(e){}}));
+  if(Object.keys(v).length){const d={t:Date.now(),v};store.set('inflacao',d);showInfl(d)}
+  else if(c)showInfl({...c,offline:true});else showInfl({t:Date.now(),v:{}});
+};
+document.getElementById('inflBtn').addEventListener('click',()=>{document.getElementById('winInfl').classList.add('open');loadInfl(false)});
+document.getElementById('inflRefresh').addEventListener('click',()=>loadInfl(true));
+
 // Busca a lista atualizada no GitHub (no máximo a cada 5 min, para respeitar o limite da API).
 const syncRepos=async(force)=>{
   const c=store.get('repos',null);
